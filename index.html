@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7f4ec">
+<meta name="description" content="TheAeralla — creative studio for Pinterest content, product visuals and beautiful websites.">
+<title>TheAeralla | Creative Studio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --cream:#f7f4ec;
+  --white:#fffefa;
+  --blue:#c6dce9;
+  --blue-dark:#729bb8;
+  --navy:#17334d;
+  --lavender:#e9e4f1;
+  --pink:#f1e2df;
+  --muted:#68798a;
+  --line:rgba(23,51,77,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--cream);
+  color:var(--navy);
+  font-family:'DM Sans',sans-serif;
+  overflow-x:hidden;
+}
+a{text-decoration:none;color:inherit}
+.wrap{width:min(1120px,90%);margin:auto}
+
+/* NAVIGATION */
+.nav{
+  position:sticky;top:12px;z-index:20;
+  width:min(1120px,92%);margin:12px auto 0;
+  padding:13px 20px;border-radius:50px;
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(255,254,250,.88);
+  backdrop-filter:blur(16px);
+  border:1px solid white;
+  box-shadow:0 8px 30px rgba(23,45,69,.06);
+}
+.brand{
+  font:700 23px 'Playfair Display',serif;
+}
+.brand span{color:var(--blue-dark)}
+.navlinks{display:flex;gap:25px;font-size:12px;font-weight:600;color:var(--muted)}
+.navlinks a:hover{color:var(--blue-dark)}
+.nav-cta,.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  border-radius:50px;background:var(--navy);color:white;
+  padding:13px 21px;font-size:12px;font-weight:700;
+  transition:.3s;
+}
+.nav-cta:hover,.btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 25px #17334d25;
+}
+
+/* HERO */
+.hero{padding:78px 0 65px}
+.hero-grid{
+  display:grid;grid-template-columns:1.05fr .95fr;
+  gap:40px;align-items:center;
+}
+.eyebrow{
+  font-size:10px;letter-spacing:2.5px;
+  text-transform:uppercase;color:#7191a8;font-weight:700;
+  display:flex;align-items:center;gap:10px;
+}
+.eyebrow:before{content:"";width:25px;height:1px;background:#8eafc7}
+h1{
+  font:600 clamp(48px,7vw,82px)/.99 'Playfair Display',serif;
+  letter-spacing:-2px;margin:22px 0;
+}
+.italic{font-style:italic;color:var(--blue-dark)}
+.hero-copy{
+  font-size:14px;line-height:1.9;
+  color:var(--muted);max-width:460px;
+}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:27px}
+.btn-light{background:var(--white);color:var(--navy);border:1px solid var(--line)}
+.tiny-note{font-size:10px;color:#8996a1;margin-top:19px}
+
+/* HERO ART */
+.visual{
+  min-height:420px;position:relative;
+  display:grid;place-items:center;
+}
+.blob{
+  position:absolute;width:340px;height:340px;
+  background:var(--blue);
+  border-radius:48% 52% 60% 40% / 44% 42% 58% 56%;
+  animation:float 7s ease-in-out infinite;
+}
+.hero-card{
+  position:relative;width:310px;height:365px;
+  background:linear-gradient(145deg,#e7f0f4,#d3e3eb,#f3e8e0);
+  border:9px solid var(--white);
+  border-radius:170px 170px 24px 24px;
+  box-shadow:0 25px 65px #1e3e581f;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+}
+.sun{
+  position:absolute;width:170px;height:170px;
+  border-radius:50%;background:#f8f0df;top:45px;right:20px;
+}
+.arch{
+  position:absolute;width:180px;height:220px;
+  border:1px solid #17334d35;
+  border-radius:100px 100px 0 0;
+  bottom:-15px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(150deg,#b5cad7,#f3e8dc);
+}
+.hero-card-text{
+  position:absolute;z-index:2;bottom:42px;
+  text-align:center;font:500 25px/1.1 'Playfair Display',serif;
+}
+.hero-card-text small{
+  display:block;font:700 8px 'DM Sans';
+  letter-spacing:3px;margin-top:10px;
+}
+.float-tag{
+  position:absolute;z-index:3;background:white;
+  border-radius:50px;padding:12px 16px;
+  font-size:10px;font-weight:700;
+  box-shadow:0 10px 25px #17334d15;
+}
+.tag-one{top:50px;left:0;animation:float 6s infinite}
+.tag-two{right:0;bottom:65px;animation:float 8s infinite reverse}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-13px)}
+}
+
+/* MARQUEE */
+.marquee{
+  overflow:hidden;border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:17px 0;white-space:nowrap;
+  color:#68839a;font:italic 17px 'Playfair Display',serif;
+}
+.marquee-track{display:inline-block;animation:scroll 28s linear infinite}
+.marquee span{padding:0 28px}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* SECTIONS */
+section{padding:82px 0}
+.section-head{
+  display:flex;justify-content:space-between;
+  align-items:end;gap:25px;margin-bottom:32px;
+}
+.section-head h2{
+  font:600 clamp(34px,4vw,49px)/1.1 'Playfair Display',serif;
+  margin-top:10px;
+}
+.section-head p{
+  max-width:330px;color:var(--muted);
+  font-size:12px;line-height:1.8;
+}
+
+/* SERVICES */
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.service{
+  padding:28px 24px;border:1px solid var(--line);
+  border-radius:20px;background:#fffefaaf;
+  transition:.3s;
+}
+.service:hover{
+  transform:translateY(-6px);background:white;
+  box-shadow:0 18px 35px #17334d0c;
+}
+.service .num{font-size:10px;color:#7896ad;letter-spacing:2px}
+.service h3{font:600 24px 'Playfair Display',serif;margin:25px 0 10px}
+.service p{font-size:12px;line-height:1.8;color:var(--muted)}
+.service .arrow{display:block;margin-top:20px;color:#739bb8}
+
+/* PORTFOLIO */
+.work-section{background:#edf2f2}
+.work-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.work-card{
+  border-radius:20px;overflow:hidden;background:var(--white);
+  border:1px solid white;transition:.3s;
+}
+.work-card:hover{transform:translateY(-5px);box-shadow:0 18px 35px #17334d12}
+.work-art{
+  height:250px;display:grid;place-items:center;
+  position:relative;overflow:hidden;
+}
+.art-pin{background:linear-gradient(135deg,#dce9ef,#f3e5e1)}
+.poster{
+  width:145px;height:190px;background:#fffefa;
+  border-radius:75px 75px 12px 12px;
+  box-shadow:0 15px 35px #17334d20;
+  display:grid;place-items:center;text-align:center;
+  padding:16px;font:600 23px/1.1 'Playfair Display',serif;
+  transform:rotate(-5deg);
+}
+.poster small{
+  font:700 7px 'DM Sans';letter-spacing:2px;color:#7998ad;
+}
+.art-product{background:linear-gradient(135deg,#e8e1f0,#f5e9e5)}
+.bottle{
+  width:78px;height:145px;border-radius:18px 18px 25px 25px;
+  background:linear-gradient(90deg,#d6c6bc,#fff8ed,#cbb6a9);
+  box-shadow:0 18px 30px #483b3525;position:relative;
+}
+.bottle:before{
+  content:"";position:absolute;width:28px;height:25px;
+  left:25px;top:-22px;background:#b7c9d1;
+  border-radius:5px 5px 0 0;
+}
+.bottle:after{
+  content:"BOTANICAL";position:absolute;top:62px;left:10px;
+  font-size:7px;letter-spacing:1px;color:#6a5960;
+  writing-mode:vertical-rl;
+}
+.art-web{background:linear-gradient(135deg,#d7e7ef,#eee8df)}
+.browser{
+  width:76%;height:155px;border-radius:10px;
+  background:#fffefa;box-shadow:0 18px 35px #17334d20;overflow:hidden;
+}
+.browser-top{
+  height:17px;background:#e8edf0;padding:6px;
+  display:flex;gap:3px;
+}
+.browser-top i{width:4px;height:4px;background:#9fb2bf;border-radius:50%}
+.browser-body{padding:15px;text-align:center}
+.browser-body b{font:600 20px 'Playfair Display',serif}
+.browser-body span{display:block;font-size:7px;color:#7c8e9b;margin:8px}
+.browser-body em{
+  display:inline-block;background:#d8e8f0;padding:6px 14px;
+  border-radius:20px;font-size:7px;font-style:normal;
+}
+.art-editorial{background:linear-gradient(135deg,#f0e2de,#e1e8ed)}
+.editorial{font:italic 34px 'Playfair Display',serif;color:#38546b;text-align:center}
+.editorial small{
+  display:block;font:700 8px 'DM Sans';letter-spacing:3px;margin-top:8px;
+}
+.work-info{padding:18px 20px}
+.work-info span{
+  font-size:9px;letter-spacing:1.5px;
+  text-transform:uppercase;color:#7d98aa;
+}
+.work-info h3{font:600 21px 'Playfair Display',serif;margin-top:7px}
+
+/* RATE CARD */
+.pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.price-card{
+  padding:27px 23px;border:1px solid var(--line);
+  border-radius:20px;background:var(--white);
+  display:flex;flex-direction:column;
+}
+.price-card.featured{
+  background:var(--navy);color:white;
+  transform:translateY(-9px);
+  box-shadow:0 18px 40px #17334d20;
+}
+.price-card .label{
+  font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:#829db1;
+}
+.featured .label{color:#c5dce9}
+.price-card h3{font:600 24px 'Playfair Display',serif;margin:18px 0 8px}
+.price{
+  font:600 35px 'Playfair Display',serif;margin:8px 0;
+}
+.price small{font:400 11px 'DM Sans';color:#8493a0}
+.featured .price small{color:#c7d5df}
+.price-card p{
+  font-size:11px;line-height:1.7;color:var(--muted);min-height:55px;
+}
+.featured p{color:#d1dce4}
+.price-card ul{
+  padding-left:16px;margin:7px 0 25px;
+  font-size:11px;line-height:2.1;color:#687b8c;flex:1;
+}
+.featured ul{color:#d1dce4}
+.price-card .btn{width:100%;margin-top:auto}
+.featured .btn{background:var(--cream);color:var(--navy)}
+
+/* ABOUT */
+.about{background:#dce9ef}
+.about-grid{
+  display:grid;grid-template-columns:.8fr 1.2fr;
+  gap:55px;align-items:center;
+}
+.about-mark{
+  height:290px;border-radius:180px 180px 20px 20px;
+  background:linear-gradient(145deg,#f8f4eb,#c6dce8);
+  display:grid;place-items:center;position:relative;
+}
+.about-mark:before{
+  content:"";width:190px;height:190px;
+  border:1px solid #7395ac;border-radius:50%;position:absolute;
+}
+.about-mark strong{
+  font:600 45px 'Playfair Display',serif;color:#29465f;z-index:1;
+}
+.about-copy h2{font:600 43px/1.1 'Playfair Display',serif;margin:12px 0 18px}
+.about-copy p{font-size:13px;line-height:1.9;color:#536c80;margin-bottom:13px}
+
+/* CONTACT */
+.contact{background:var(--navy);color:white;padding:75px 0}
+.contact-grid{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:35px;
+}
+.contact h2{font:600 clamp(38px,5vw,58px)/1.05 'Playfair Display',serif;margin:12px 0}
+.contact p{font-size:12px;line-height:1.8;color:#d0dce5;max-width:430px;margin-bottom:22px}
+.contact .eyebrow{color:#b6d2e3}
+.contact .eyebrow:before{background:#b6d2e3}
+.contact-links{display:flex;flex-direction:column;gap:12px;min-width:220px}
+.contact-links a{
+  border-bottom:1px solid #ffffff40;padding:10px 0;font-size:12px;
+}
+.contact-links a:hover{color:#c2dfef}
+footer{
+  padding:20px 0;background:#10283e;color:#aebdca;font-size:10px;
+}
+.footer-inner{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+
+/* REVEAL ANIMATION */
+.reveal{
+  opacity:0;transform:translateY(20px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:760px){
+  .nav{padding:10px 14px}
+  .navlinks{gap:12px}
+  .navlinks a{font-size:10px}
+  .nav-cta{display:none}
+  .hero{padding:54px 0 35px}
+  .hero-grid{grid-template-columns:1fr;gap:12px}
+  .hero-copy{font-size:13px}
+  .visual{min-height:350px}
+  .blob{width:280px;height:280px}
+  .hero-card{height:315px;width:275px}
+  .section-head{display:block}
+  .section-head p{margin-top:14px}
+  .services,.pricing{grid-template-columns:1fr}
+  .price-card.featured{transform:none}
+  .work-grid{gap:12px}
+  .work-art{height:180px}
+  .poster{width:115px;height:150px;font-size:19px}
+  .browser{height:125px}
+  .browser-body{padding:9px}
+  .browser-body b{font-size:16px}
+  .about-grid{grid-template-columns:1fr;gap:28px}
+  .about-mark{height:230px;width:80%;margin:auto}
+  .about-copy h2{font-size:36px}
+  .contact-grid{display:block}
+  .contact-links{margin-top:28px}
+}
+@media(max-width:390px){
+  .navlinks{gap:8px}
+  .navlinks a{font-size:9px}
+  .brand{font-size:19px}
+  .work-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{
+    animation:none!important;
+    scroll-behavior:auto!important;
+    transition:none!important;
+  }
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+
+<body>
+
+<nav class="nav">
+  <a class="brand" href="#home">The<span>Aeralla</span>.</a>
+  <div class="navlinks">
+    <a href="#services">Services</a>
+    <a href="#work">Work</a>
+    <a href="#rates">Rates</a>
+    <a href="#about">About</a>
+  </div>
+  <a class="nav-cta" href="#contact">Let's talk ↗</a>
+</nav>
+
+<main id="home">
+
+<header class="hero wrap">
+  <div class="hero-grid">
+    <div class="reveal">
+      <div class="eyebrow">A little studio for big ideas</div>
+      <h1>Make your brand<br>feel <span class="italic">unforgettable.</span></h1>
+      <p class="hero-copy">
+        Thoughtful digital design for small businesses and growing brands.
+        From scroll-stopping Pinterest content to polished websites and
+        product visuals — let's make your online presence feel like you.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#work">Explore the studio ↗</a>
+        <a class="btn btn-light" href="#rates">View starting rates</a>
+      </div>
+      <p class="tiny-note">Independent creative studio · Based in India · Open for projects</p>
+    </div>
+
+    <div class="visual reveal">
+      <div class="blob"></div>
+      <div class="float-tag tag-one">✦ Thoughtful design</div>
+      <div class="hero-card">
+        <div class="sun"></div>
+        <div class="arch"></div>
+        <div class="hero-card-text">
+          A softer<br>kind of impact
+          <small>THE AERALLA STUDIO</small>
+        </div>
+      </div>
+      <div class="float-tag tag-two">Pinterest · Web · Visuals</div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>DESIGN WITH INTENTION ✳</span>
+    <span>SMALL BRANDS, BIG PRESENCE ✳</span>
+    <span>CREATIVE THAT CONNECTS ✳</span>
+    <span>DESIGN WITH INTENTION ✳</span>
+    <span>SMALL BRANDS, BIG PRESENCE ✳</span>
+    <span>CREATIVE THAT CONNECTS ✳</span>
+  </div>
+</div>
+
+<section id="services" class="wrap">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">What I can create</div>
+      <h2>Good ideas, beautifully<br>put together.</h2>
+    </div>
+    <p>
+      Creative essentials that help your business look consistent,
+      clear and ready to be discovered.
+    </p>
+  </div>
+
+  <div class="services">
+    <article class="service reveal">
+      <span class="num">01 / PINTEREST</span>
+      <h3>Pin-worthy content</h3>
+      <p>
+        On-brand Pinterest pins and content sets designed to catch
+        attention, communicate clearly and invite people to explore.
+      </p>
+      <span class="arrow">↗</span>
+    </article>
+
+    <article class="service reveal">
+      <span class="num">02 / WEB DESIGN</span>
+      <h3>One-page websites</h3>
+      <p>
+        Clean, mobile-friendly landing pages that introduce your
+        business, showcase what you offer and make it easy to contact you.
+      </p>
+      <span class="arrow">↗</span>
+    </article>
+
+    <article class="service reveal">
+      <span class="num">03 / PRODUCT VISUALS</span>
+      <h3>Product storytelling</h3>
+      <p>
+        Faceless product-led visuals and creative concepts for brands
+        that want an elevated, cohesive social presence.
+      </p>
+      <span class="arrow">↗</span>
+    </article>
+  </div>
+</section>
+
+<section id="work" class="work-section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">A glimpse of the aesthetic</div>
+        <h2>Selected creative directions.</h2>
+      </div>
+      <p>
+        A preview of the visual style and services offered by TheAeralla.
+        Original project photos and videos can be added here later.
+      </p>
+    </div>
+
+    <div class="work-grid">
+      <article class="work-card reveal">
+        <div class="work-art art-pin">
+          <div class="poster">
+            The little<br>details
+            <small>STYLE NOTES · 01</small>
+          </div>
+        </div>
+        <div class="work-info">
+          <span>Pinterest design</span>
+          <h3>Editorial pin concepts</h3>
+        </div>
+      </article>
+
+      <article class="work-card reveal">
+        <div class="work-art art-product">
+          <div class="bottle"></div>
+        </div>
+        <div class="work-info">
+          <span>Product storytelling</span>
+          <h3>Soft-focus product direction</h3>
+        </div>
+      </article>
+
+      <article class="work-card reveal">
+        <div class="work-art art-web">
+          <div class="browser">
+            <div class="browser-top"><i></i><i></i><i></i></div>
+            <div class="browser-body">
+              <b>A beautiful first impression.</b>
+              <span>A simple home for your business online.</span>
+              <em>EXPLORE MORE</em>
+            </div>
+          </div>
+        </div>
+        <div class="work-info">
+          <span>Web design</span>
+          <h3>Small business landing page</h3>
+        </div>
+      </article>
+
+      <article class="work-card reveal">
+        <div class="work-art art-editorial">
+          <div class="editorial">
+            Less, but lovely.
+            <small>THE CREATIVE EDIT</small>
+          </div>
+        </div>
+        <div class="work-info">
+          <span>Creative direction</span>
+          <h3>Minimal brand moodboard</h3>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="rates" class="wrap">
+  <div class="section-head reveal">
+    <div>
+      <div class="eyebrow">Simple starting rates</div>
+      <h2>Choose your first step.</h2>
+    </div>
+    <p>
+      Starter pricing for small businesses and new brands.
+      Final quotes depend on the brief and project scope.
+    </p>
+  </div>
+
+  <div class="pricing">
+    <article class="price-card reveal">
+      <span class="label">01 · Pinterest</span>
+      <h3>Pin Design Set</h3>
+      <div class="price">₹499 <small>/ starting</small></div>
+      <p>A coordinated set to give your Pinterest presence a polished look.</p>
+      <ul>
+        <li>5 custom pin designs</li>
+        <li>Consistent visual style</li>
+        <li>Ready-to-post files</li>
+      </ul>
+      <a class="btn btn-light" href="mailto:hawkarc2003@gmail.com?subject=TheAeralla%20Pinterest%20Design">Enquire about pins ↗</a>
+    </article>
+
+    <article class="price-card featured reveal">
+      <span class="label">02 · Most versatile</span>
+      <h3>Product Visual Pack</h3>
+      <div class="price">₹799 <small>/ starting</small></div>
+      <p>Product-led creative concepts for a clean, cohesive social feed.</p>
+      <ul>
+        <li>3 visual concepts</li>
+        <li>Faceless product styling</li>
+        <li>Social-ready exports</li>
+      </ul>
+      <a class="btn" href="mailto:hawkarc2003@gmail.com?subject=TheAeralla%20Product%20Visuals">Enquire about visuals ↗</a>
+    </article>
+
+    <article class="price-card reveal">
+      <span class="label">03 · Web</span>
+      <h3>One-page Website</h3>
+      <div class="price">₹2,499 <small>/ starting</small></div>
+      <p>A simple, responsive website that gives your business a home online.</p>
+      <ul>
+        <li>Single-page layout</li>
+        <li>Mobile-friendly design</li>
+        <li>Services and contact section</li>
+      </ul>
+      <a class="btn btn-light" href="mailto:hawkarc2003@gmail.com?subject=TheAeralla%20Website%20Project">Enquire about a site ↗</a>
+    </article>
+  </div>
+
+  <p class="tiny-note">
+    Starting rates are introductory estimates and can be adjusted before publishing.
+  </p>
+</section>
+
+<section id="about" class="about">
+  <div class="wrap about-grid">
+    <div class="about-mark reveal"><strong>TA.</strong></div>
+    <div class="about-copy reveal">
+      <div class="eyebrow">A note from the studio</div>
+      <h2>Small studio.<br>Considered details.</h2>
+      <p>
+        TheAeralla is an independent creative studio focused on helping
+        small businesses show up online with more confidence.
+      </p>
+      <p>
+        The approach is simple: understand the brand, keep the design
+ 
