@@ -12,6 +12,20 @@
     if (match) {
       const cdnRoot = `https://cdn.jsdelivr.net/gh/hawkarc2003-cell/I@${match[1]}/`;
       const rawRoot = `https://raw.githubusercontent.com/hawkarc2003-cell/I/${match[1]}/`;
+      // A previewer can cancel an image request while replacing its document.
+      // Retry an unsuccessful original once without changing its bytes.
+      document.querySelectorAll("img[src]").forEach((image) => {
+        const retryImage = () => {
+          if (image.dataset.previewRetried) return;
+          const url = new URL(image.currentSrc || image.getAttribute("src"), rawRoot);
+          if (url.origin !== "https://raw.githubusercontent.com") return;
+          image.dataset.previewRetried = "true";
+          url.searchParams.set("preview-retry", "1");
+          image.src = url.href;
+        };
+        image.addEventListener("error", retryImage);
+        if (image.complete && image.currentSrc && !image.naturalWidth) retryImage();
+      });
       const setHint = (video, message) => {
         if (!video.dataset.inViewer) return;
         const hint = document.getElementById("viewer-hint");
