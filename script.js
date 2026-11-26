@@ -1,18 +1,80 @@
 (() => {
   "use strict";
 
-  // A Git-hosted HTML preview has to proxy the page itself. For that preview only,
-  // serve the unchanged media through jsDelivr, which provides video MIME types
-  // and byte-range support. Normal hosting continues to use local files.
+  // The read-only Git-hosted preview needs a video-friendly MIME type. Prefer
+  // jsDelivr there, but it can reject large repositories. In that case try the
+  // unchanged GitHub original, and finally a correctly typed Blob of its bytes.
+  // The actual site, when hosted normally, always uses its local originals.
   if (window.location.hostname === "html-preview.github.io") {
     const previewUrl = new URL(window.location.href).searchParams.get("url") || "";
     const match = previewUrl.match(/^https:\/\/github\.com\/hawkarc2003-cell\/I\/blob\/([a-f0-9]{40})\/index\.html$/i);
 
     if (match) {
       const cdnRoot = `https://cdn.jsdelivr.net/gh/hawkarc2003-cell/I@${match[1]}/`;
+      const rawRoot = `https://raw.githubusercontent.com/hawkarc2003-cell/I/${match[1]}/`;
+      const setHint = (video, message) => {
+        if (!video.dataset.inViewer) return;
+        const hint = document.getElementById("viewer-hint");
+        if (hint) hint.textContent = message;
+      };
+      const resumeIfOpen = (video) => {
+        if (!video.dataset.inViewer) return;
+        video.muted = true;
+        const playing = video.play();
+        if (playing && typeof playing.catch === "function") playing.catch(() => {});
+      };
       document.querySelectorAll("video source[src]").forEach((source) => {
-        source.src = new URL(source.getAttribute("src"), cdnRoot).href;
-        source.parentElement.dataset.previewSourceUpdated = "true";
+        const video = source.parentElement;
+        const originalPath = source.getAttribute("src");
+        video.dataset.previewCdn = new URL(originalPath, cdnRoot).href;
+        video.dataset.previewRaw = new URL(originalPath, rawRoot).href;
+        video.dataset.previewStage = "cdn";
+        source.src = video.dataset.previewCdn;
+        video.dataset.previewSourceUpdated = "true";
+        video.addEventListener("loadeddata", () => {
+          setHint(video, "Starts muted. Use the controls to adjust sound where available.");
+        });
+        const handlePreviewError = async () => {
+          if (video.dataset.previewStage === "cdn") {
+            video.dataset.previewStage = "raw";
+            setHint(video, "Loading the original video…");
+            source.src = video.dataset.previewRaw;
+            video.load();
+            resumeIfOpen(video);
+          } else if (video.dataset.previewStage === "raw") {
+            video.dataset.previewStage = "fetching";
+            setHint(video, "Loading the original video…");
+            try {
+              const response = await fetch(video.dataset.previewRaw);
+              if (!response.ok) throw new Error("Original video could not be fetched");
+              const original = await response.blob();
+              if (!original.size) throw new Error("Original video is empty");
+              const url = URL.createObjectURL(original.slice(0, original.size, "video/mp4"));
+              video.dataset.previewObjectUrl = url;
+              video.dataset.previewStage = "blob";
+              video.src = url;
+              video.load();
+              resumeIfOpen(video);
+            } catch (_) {
+              video.dataset.previewStage = "failed";
+              setHint(video, "Video could not be loaded. Check your connection and reopen it to retry.");
+            }
+          } else if (video.dataset.previewStage === "blob") {
+            video.dataset.previewStage = "failed";
+            setHint(video, "Video could not be loaded. Check your connection and reopen it to retry.");
+          }
+        };
+        // Errors for child <source> elements do not bubble to <video>.
+        source.addEventListener("error", handlePreviewError);
+        video.addEventListener("error", () => {
+          if (video.dataset.previewStage === "blob") handlePreviewError();
+        });
+      });
+      window.addEventListener("pagehide", (event) => {
+        if (event.persisted) return;
+        document.querySelectorAll("video[data-preview-object-url]").forEach((video) => {
+          URL.revokeObjectURL(video.dataset.previewObjectUrl);
+        });
       });
     }
   }
@@ -156,13 +218,23 @@
     detail.textContent = project.dataset.detail;
     const isVideo = node instanceof HTMLVideoElement;
     hint.hidden = !isVideo;
-    hint.textContent = isVideo ? "Starts muted. Use the controls to adjust sound where available." : "";
+    hint.textContent = isVideo
+      ? (node.dataset.previewStage === "fetching" ? "Loading the original video…" : "Starts muted. Use the controls to adjust sound where available.")
+      : "";
     dialog.setAttribute("aria-describedby", isVideo ? "viewer-detail viewer-hint" : "viewer-detail");
     indexLabel.textContent = `SELECTED WORK / ${project.dataset.index}`;
     counter.textContent = `${String(index + 1).padStart(2, "0")} / ${String(projects.length).padStart(2, "0")}`;
     previousButton.disabled = index === 0;
     nextButton.disabled = index === projects.length - 1;
     if (node instanceof HTMLVideoElement) {
+      if (node.dataset.previewStage === "failed") {
+        if (node.dataset.previewObjectUrl) URL.revokeObjectURL(node.dataset.previewObjectUrl);
+        delete node.dataset.previewObjectUrl;
+        node.removeAttribute("src");
+        node.querySelector("source").src = node.dataset.previewCdn;
+        node.dataset.previewStage = "cdn";
+        node.dataset.previewSourceUpdated = "true";
+      }
       if (node.dataset.previewSourceUpdated) {
         delete node.dataset.previewSourceUpdated;
         node.load();
