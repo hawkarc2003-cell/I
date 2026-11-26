@@ -12,16 +12,25 @@
     if (match) {
       const cdnRoot = `https://cdn.jsdelivr.net/gh/hawkarc2003-cell/I@${match[1]}/`;
       const rawRoot = `https://raw.githubusercontent.com/hawkarc2003-cell/I/${match[1]}/`;
-      // A previewer can cancel an image request while replacing its document.
-      // Retry an unsuccessful original once without changing its bytes.
+      // Retry interrupted images with a short backoff in this preview only.
+      // The retry points to the same original bytes, not a converted image.
       document.querySelectorAll("img[src]").forEach((image) => {
+        const delays = [750, 1500];
+        let attempts = 0;
+        let pending = false;
         const retryImage = () => {
-          if (image.dataset.previewRetried) return;
+          if (pending || attempts >= delays.length) return;
           const url = new URL(image.currentSrc || image.getAttribute("src"), rawRoot);
           if (url.origin !== "https://raw.githubusercontent.com") return;
-          image.dataset.previewRetried = "true";
-          url.searchParams.set("preview-retry", "1");
-          image.src = url.href;
+          pending = true;
+          window.setTimeout(() => {
+            pending = false;
+            if (image.naturalWidth) return;
+            attempts += 1;
+            image.dataset.previewRetried = String(attempts);
+            url.searchParams.set("preview-retry", String(attempts));
+            image.src = url.href;
+          }, delays[attempts]);
         };
         image.addEventListener("error", retryImage);
         if (image.complete && image.currentSrc && !image.naturalWidth) retryImage();
