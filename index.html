@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#102747">
-  <meta name="description" content="TheAeralla is a creative studio making thoughtful product visuals, beauty stories and short-form content for brands with a story to tell.">
-  <title>TheAeralla Creative Studio — Visual stories, made with feeling</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="description" content="TheAeralla is a creative studio for Pinterest content, faceless product visuals and one-page websites, made with feeling.">
+  <title>TheAeralla Creative Studio — Ideas made with feeling</title>
+  <link rel="icon" href="assets/brand/file_000000003ecc8211a7451f649c04458b.png" type="image/png">
   <link rel="preload" href="assets/fonts/playfair-display-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/dm-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
@@ -16,220 +16,230 @@
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="site-header">
-    <div class="shell site-header__inner">
+    <div class="shell header-inner">
       <a class="wordmark" href="#top" aria-label="TheAeralla Creative Studio, back to top">
-        <span class="wordmark__name">TheAeralla<span aria-hidden="true">✦</span></span>
-        <span class="wordmark__subtitle">Creative studio</span>
+        <span>TheAeralla<span class="wordmark__star" aria-hidden="true">✦</span></span>
+        <small>Creative studio</small>
       </a>
-      <div class="site-header__right">
-        <span class="site-header__note">A little world of visual stories <span aria-hidden="true">✧</span></span>
-        <a class="header-link" href="mailto:hawkarc2003@gmail.com?subject=Creative%20project%20inquiry%20%E2%80%94%20TheAeralla">Let's talk <span aria-hidden="true">↗</span></a>
-      </div>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#work">Selected work</a>
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+        <a class="nav-contact" href="#contact">Let's talk <span aria-hidden="true">↗</span></a>
+      </nav>
+      <details class="mobile-menu">
+        <summary><span>Menu</span><span class="mobile-menu__icon" aria-hidden="true"><i></i><i></i></span></summary>
+        <nav aria-label="Mobile navigation">
+          <a href="#work">Selected work <span aria-hidden="true">↘</span></a>
+          <a href="#services">Services <span aria-hidden="true">↘</span></a>
+          <a href="#about">About <span aria-hidden="true">↘</span></a>
+          <a href="#contact">Let's talk <span aria-hidden="true">↗</span></a>
+        </nav>
+      </details>
     </div>
   </header>
 
-  <main id="main" class="shell">
-    <section class="profile" aria-labelledby="profile-name">
-      <div class="profile__avatar" aria-hidden="true">
-        <div class="avatar-mark">
-          <span class="avatar-mark__the">the</span>
-          <span class="avatar-mark__letter">A</span>
-          <span class="avatar-mark__star">✦</span>
-          <span class="avatar-mark__caption">creative studio</span>
+  <main id="main" tabindex="-1">
+    <section class="hero shell" aria-labelledby="hero-heading">
+      <div class="hero__copy">
+        <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> An independent creative studio <span class="eyebrow__line" aria-hidden="true"></span></p>
+        <h1 id="hero-heading">Creative work,<br><em>with feeling.</em></h1>
+        <p class="hero__intro">Pinterest content, faceless product visuals and one-page websites for brands with a story to tell.</p>
+        <div class="hero__actions">
+          <a class="button button--light" href="#work">Explore the work <span aria-hidden="true">↘</span></a>
+          <a class="text-link" href="#contact">Have an idea? <span aria-hidden="true">↗</span></a>
         </div>
+        <p class="hero__footnote"><span aria-hidden="true"></span> Thoughtful ideas. Beautifully told.</p>
       </div>
-
-      <div class="profile__content">
-        <div class="profile__top">
-          <p class="eyebrow"><span class="eyebrow__dot" aria-hidden="true"></span> Independent creative studio <span class="eyebrow__spark" aria-hidden="true">✧</span></p>
-          <div class="profile__name-row">
-            <h1 id="profile-name">theaeralla</h1>
-            <span class="profile__badge">Creative studio</span>
-          </div>
-          <p class="profile__line">A little beauty in <em>everything.</em></p>
+      <div class="hero__art">
+        <span class="hero__orbit hero__orbit--one" aria-hidden="true"></span>
+        <span class="hero__orbit hero__orbit--two" aria-hidden="true"></span>
+        <span class="hero__spark hero__spark--one" aria-hidden="true">✧</span>
+        <span class="hero__spark hero__spark--two" aria-hidden="true">✦</span>
+        <div class="hero__logo">
+          <img src="assets/brand/file_000000003ecc8211a7451f649c04458b.png" width="1536" height="1024" alt="TheAeralla Creative Studio's metallic T and A logo, with a bow and stars" fetchpriority="high" decoding="async">
         </div>
-
-        <div class="profile__stats" role="group" aria-label="Portfolio at a glance">
-          <p><strong>12</strong><span>projects</span></p>
-          <p><strong>02</strong><span>posts</span></p>
-          <p><strong>10</strong><span>reels</span></p>
-        </div>
-
-        <div class="profile__bio">
-          <p class="profile__studio">TheAeralla Creative Studio <span aria-hidden="true">✦</span></p>
-          <p>Creative direction, product visuals and short-form UGC for brands with a story to tell.</p>
-          <p class="profile__disciplines">Beauty <span>·</span> Skincare <span>·</span> Fashion <span>·</span> Accessories</p>
-        </div>
-
-        <div class="profile__actions">
-          <a class="button button--primary" href="mailto:hawkarc2003@gmail.com?subject=Creative%20project%20inquiry%20%E2%80%94%20TheAeralla">Let's create <span aria-hidden="true">↗</span></a>
-          <a class="button button--quiet" href="#work">Explore the work <span aria-hidden="true">↓</span></a>
-        </div>
+        <div class="hero__art-caption"><span>THEAERALLA / CREATIVE STUDIO</span><span>MADE WITH INTENTION <span aria-hidden="true">✧</span></span></div>
       </div>
-      <span class="profile__signature" aria-hidden="true">made with feeling <span>✧</span></span>
     </section>
 
-    <section class="work" id="work" aria-labelledby="work-heading">
-      <div class="work__heading" data-reveal>
+    <div class="discipline-strip">
+      <div class="shell discipline-strip__inner">
+        <span>Pinterest content</span><span aria-hidden="true">✦</span>
+        <span>Faceless product visuals</span><span aria-hidden="true">✦</span>
+        <span>One-page websites</span>
+      </div>
+    </div>
+
+    <section class="work shell" id="work" aria-labelledby="work-heading">
+      <div class="section-intro" data-reveal>
         <div>
-          <p class="eyebrow">A little collection <span class="eyebrow__line" aria-hidden="true"></span> 01 — 12</p>
-          <h2 id="work-heading">The <em>visual diary.</em></h2>
+          <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> Selected work <span class="eyebrow__line" aria-hidden="true"></span> 01 — 12</p>
+          <h2 id="work-heading">Considered visuals.<br><em>Made to be remembered.</em></h2>
         </div>
-        <p class="work__intro">A closer look at the details, ideas and moments that make a story.</p>
+        <p class="section-intro__copy">A collection of little details, big ideas and visual stories. Select a piece for a closer look.</p>
       </div>
 
-      <div class="gallery-bar">
-        <div class="gallery-tabs" role="tablist" aria-label="Filter portfolio">
-          <button class="gallery-tab" type="button" role="tab" id="tab-all" aria-controls="gallery-panel" aria-selected="true" tabindex="0" data-filter="all">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
-            <span>All</span>
-          </button>
-          <button class="gallery-tab" type="button" role="tab" id="tab-posts" aria-controls="gallery-panel" aria-selected="false" tabindex="-1" data-filter="post">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="1.5"/><circle cx="9" cy="9" r="1.5"/><path d="m5 18 4.5-4.5 3 2.5 2.5-2.5L20 18"/></svg>
-            <span>Posts</span>
-          </button>
-          <button class="gallery-tab" type="button" role="tab" id="tab-reels" aria-controls="gallery-panel" aria-selected="false" tabindex="-1" data-filter="reel">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 8.5h17M8 4l3 4.5M14 4l3 4.5M10 11.5l5 3-5 3z"/></svg>
-            <span>Reels</span>
-          </button>
+      <section class="chapter" aria-labelledby="beauty-heading">
+        <div class="chapter-heading" data-reveal>
+          <p class="chapter-heading__number">01 <span>/ 03</span></p>
+          <div><p class="eyebrow">The beauty edit</p><h3 id="beauty-heading">Beauty <em>in the details.</em></h3></div>
+          <p class="chapter-heading__description">Skincare, fragrance and the little rituals that deserve their own moment.</p>
         </div>
-        <p class="gallery-count" id="filter-status" aria-live="polite">12 pieces <span aria-hidden="true">✧</span></p>
-      </div>
 
-      <noscript><p class="no-script-note">Filters and the enlarged viewer need JavaScript. You can still play each video below.</p></noscript>
-      <div id="gallery-panel" role="tabpanel" aria-labelledby="tab-all" tabindex="0">
-        <div class="media-grid" id="media-grid">
-          <figure class="tile" data-kind="post" data-index="01" data-title="A little gloss" data-detail="Beauty / Visual concept" data-reveal>
-            <div class="tile__media" style="--ratio: 1229 / 1536">
-              <img src="assets/media/file_00000000311c8211bea4f023861b57ba.png" width="1229" height="1536" alt="SHEGLAM lip gloss creative visual in soft pink" fetchpriority="high">
-              <button class="tile__open" type="button" aria-label="Open A little gloss post" aria-haspopup="dialog"></button>
+        <div class="beauty-feature">
+          <figure class="project project--skincare" data-project data-index="01" data-title="Good skin days" data-detail="Skincare / Visual concept" data-reveal>
+            <div class="project__media" style="--ratio: 1024 / 1536">
+              <img src="assets/media/file_00000000b4e4821185a0f62eccb2d9fc.jpg" width="1024" height="1536" alt="Dot &amp; Key skincare serum visual with strawberry and orange illustrations" loading="lazy" decoding="async">
+              <button class="project__open" type="button" aria-label="Open Good skin days image" aria-haspopup="dialog"></button>
             </div>
-            <figcaption class="tile__caption"><span class="tile__number">01</span><span class="tile__title">A little gloss</span><span class="tile__kind">Post</span></figcaption>
+            <figcaption class="project__caption"><div><span>01 / SKINCARE VISUAL</span><h4>Good skin days</h4></div><span class="project__cue" aria-hidden="true">View <b>↗</b></span></figcaption>
           </figure>
-
-          <figure class="tile" data-kind="post" data-index="02" data-title="Good skin days" data-detail="Skincare / Visual concept" data-reveal>
-            <div class="tile__media" style="--ratio: 1024 / 1536">
-              <img src="assets/media/file_00000000b4e4821185a0f62eccb2d9fc.jpg" width="1024" height="1536" alt="Dot &amp; Key skincare serum visual with strawberry and orange illustrations" loading="lazy">
-              <button class="tile__open" type="button" aria-label="Open Good skin days post" aria-haspopup="dialog"></button>
+          <figure class="project project--fragrance" data-project data-index="02" data-title="A moment of bloom" data-detail="Fragrance / Product story" data-reveal>
+            <div class="project__media" style="--ratio: 720 / 1280">
+              <video controls muted playsinline preload="none" width="720" height="1280" data-preview-time="6" aria-label="Fragrance product story video"><source src="assets/media/lv_7562388486536367413_20261114134054(3).mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play A moment of bloom video" aria-haspopup="dialog"></button>
             </div>
-            <figcaption class="tile__caption"><span class="tile__number">02</span><span class="tile__title">Good skin days</span><span class="tile__kind">Post</span></figcaption>
+            <figcaption class="project__caption"><div><span>02 / FRAGRANCE FILM</span><h4>A moment of bloom</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
           </figure>
+          <div class="margin-note" data-reveal><span class="margin-note__star" aria-hidden="true">✧</span><p>For the little things <em>worth noticing.</em></p><span class="margin-note__line" aria-hidden="true"></span></div>
+        </div>
 
-          <figure class="tile" data-kind="reel" data-index="03" data-title="A beauty kind of mood" data-detail="Makeup / Creative edit" data-reveal>
-            <div class="tile__media" style="--ratio: 1080 / 1920">
-              <video controls muted playsinline preload="none" width="1080" height="1920" aria-label="Beauty mood video"><source src="assets/media/lv_0_20261120224711(2).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open A beauty kind of mood reel" aria-haspopup="dialog"></button>
+        <div class="beauty-more">
+          <figure class="project project--beauty-mood" data-project data-index="03" data-title="A beauty kind of mood" data-detail="Makeup / Creative edit" data-reveal>
+            <div class="project__media" style="--ratio: 1080 / 1920">
+              <video controls muted playsinline preload="none" width="1080" height="1920" data-preview-time="4.5" aria-label="Makeup creative edit video"><source src="assets/media/lv_0_20261120224711(2).mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play A beauty kind of mood video" aria-haspopup="dialog"></button>
             </div>
-            <figcaption class="tile__caption"><span class="tile__number">03</span><span class="tile__title">Beauty kind of mood</span><span class="tile__kind">Reel</span></figcaption>
+            <figcaption class="project__caption"><div><span>03 / BEAUTY EDIT</span><h4>A beauty kind of mood</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
           </figure>
-
-          <figure class="tile" data-kind="reel" data-index="04" data-title="A moment of bloom" data-detail="Fragrance / Product story" data-reveal>
-            <div class="tile__media" style="--ratio: 720 / 1280">
-              <video controls muted playsinline preload="none" width="720" height="1280" aria-label="Fragrance story video"><source src="assets/media/lv_7562388486536367413_20261114134054(3).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open A moment of bloom reel" aria-haspopup="dialog"></button>
-            </div>
-            <figcaption class="tile__caption"><span class="tile__number">04</span><span class="tile__title">A moment of bloom</span><span class="tile__kind">Reel</span></figcaption>
-          </figure>
-
-          <figure class="tile" data-kind="reel" data-index="05" data-title="The gloss edit" data-detail="Beauty / Product details" data-reveal>
-            <div class="tile__media" style="--ratio: 720 / 1280">
+          <figure class="project project--gloss-film" data-project data-index="04" data-title="The gloss edit" data-detail="Beauty / Product details" data-reveal>
+            <div class="project__media" style="--ratio: 720 / 1280">
               <video controls muted playsinline preload="none" width="720" height="1280" aria-label="Lip colour product video"><source src="assets/media/lv_7610453473481493813_20261114134247(3).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open The gloss edit reel" aria-haspopup="dialog"></button>
+              <button class="project__open" type="button" aria-label="Play The gloss edit video" aria-haspopup="dialog"></button>
             </div>
-            <figcaption class="tile__caption"><span class="tile__number">05</span><span class="tile__title">The gloss edit</span><span class="tile__kind">Reel</span></figcaption>
+            <figcaption class="project__caption"><div><span>04 / PRODUCT DETAILS</span><h4>The gloss edit</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
           </figure>
-
-          <figure class="tile" data-kind="reel" data-index="06" data-title="At your fingertips" data-detail="Nail art / Mood board" data-reveal>
-            <div class="tile__media" style="--ratio: 1000 / 1500">
-              <video controls muted playsinline preload="none" width="1000" height="1500" data-preview-time="2.5" aria-label="Nail art mood-board video"><source src="assets/media/VID_20251206_001457_902.mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open At your fingertips reel" aria-haspopup="dialog"></button>
+          <figure class="project project--gloss-still" data-project data-index="05" data-title="A little gloss" data-detail="Beauty / Visual concept" data-reveal>
+            <div class="project__media" style="--ratio: 1229 / 1536">
+              <img src="assets/media/file_00000000311c8211bea4f023861b57ba.png" width="1229" height="1536" alt="SHEGLAM lip gloss creative visual in soft pink" loading="lazy" decoding="async">
+              <button class="project__open" type="button" aria-label="Open A little gloss image" aria-haspopup="dialog"></button>
             </div>
-            <figcaption class="tile__caption"><span class="tile__number">06</span><span class="tile__title">At your fingertips</span><span class="tile__kind">Reel</span></figcaption>
-          </figure>
-
-          <figure class="tile" data-kind="reel" data-index="07" data-title="Something to step into" data-detail="Fashion / Visual edit" data-reveal>
-            <div class="tile__media" style="--ratio: 1024 / 2020">
-              <video controls muted playsinline preload="none" width="1024" height="2020" aria-label="Fashion and shoes video"><source src="assets/media/ugc-video-01(3).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open Something to step into reel" aria-haspopup="dialog"></button>
-            </div>
-            <figcaption class="tile__caption"><span class="tile__number">07</span><span class="tile__title">Something to step into</span><span class="tile__kind">Reel</span></figcaption>
-          </figure>
-
-          <figure class="tile" data-kind="reel" data-index="08" data-title="Made for the everyday" data-detail="Footwear / Creative campaign" data-reveal>
-            <div class="tile__media" style="--ratio: 720 / 1280">
-              <video controls muted playsinline preload="none" width="720" height="1280" data-preview-time="8.8" aria-label="Sneaker campaign video"><source src="assets/media/lv_7627484597755989269_20261113153930(5).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open Made for the everyday reel" aria-haspopup="dialog"></button>
-            </div>
-            <figcaption class="tile__caption"><span class="tile__number">08</span><span class="tile__title">Made for the everyday</span><span class="tile__kind">Reel</span></figcaption>
-          </figure>
-
-          <figure class="tile" data-kind="reel" data-index="09" data-title="The everyday edit" data-detail="Fashion / Outfit inspiration" data-reveal>
-            <div class="tile__media" style="--ratio: 720 / 1280">
-              <video controls muted playsinline preload="none" width="720" height="1280" data-preview-time="6" aria-label="Outfit inspiration video"><source src="assets/media/reset_metadata_lv_7654793459022302484_20261117145706(3).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open The everyday edit reel" aria-haspopup="dialog"></button>
-            </div>
-            <figcaption class="tile__caption"><span class="tile__number">09</span><span class="tile__title">The everyday edit</span><span class="tile__kind">Reel</span></figcaption>
-          </figure>
-
-          <figure class="tile" data-kind="reel" data-index="10" data-title="Little luxuries" data-detail="Jewellery / Product visual" data-reveal>
-            <div class="tile__media" style="--ratio: 720 / 1280">
-              <video controls muted playsinline preload="none" width="720" height="1280" aria-label="Jewellery visual video"><source src="assets/media/peaceful-notes.mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open Little luxuries reel" aria-haspopup="dialog"></button>
-            </div>
-            <figcaption class="tile__caption"><span class="tile__number">10</span><span class="tile__title">Little luxuries</span><span class="tile__kind">Reel</span></figcaption>
-          </figure>
-
-          <figure class="tile" data-kind="reel" data-index="11" data-title="A little golden moment" data-detail="Jewellery / Product-first UGC" data-reveal>
-            <div class="tile__media" style="--ratio: 1080 / 1080">
-              <video controls muted playsinline preload="none" width="1080" height="1080" aria-label="Jewellery UGC video"><source src="assets/media/lv-ugc(2).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open A little golden moment reel" aria-haspopup="dialog"></button>
-            </div>
-            <figcaption class="tile__caption"><span class="tile__number">11</span><span class="tile__title">A golden moment</span><span class="tile__kind">Reel</span></figcaption>
-          </figure>
-
-          <figure class="tile" data-kind="reel" data-index="12" data-title="Gloss, in motion" data-detail="Beauty / Creative edit" data-reveal>
-            <div class="tile__media" style="--ratio: 720 / 1278">
-              <video controls muted playsinline preload="none" width="720" height="1278" aria-label="Lip gloss visual motion video"><source src="assets/media/lv_7647135303001476353_20261113154345(4).mp4" type="video/mp4">Your browser does not support embedded video.</video>
-              <button class="tile__open" type="button" aria-label="Open Gloss, in motion reel" aria-haspopup="dialog"></button>
-            </div>
-            <figcaption class="tile__caption"><span class="tile__number">12</span><span class="tile__title">Gloss, in motion</span><span class="tile__kind">Reel</span></figcaption>
+            <figcaption class="project__caption"><div><span>05 / BEAUTY VISUAL</span><h4>A little gloss</h4></div><span class="project__cue" aria-hidden="true">View <b>↗</b></span></figcaption>
           </figure>
         </div>
+      </section>
+
+      <section class="chapter chapter--style" aria-labelledby="style-heading">
+        <div class="chapter-heading" data-reveal>
+          <p class="chapter-heading__number">02 <span>/ 03</span></p>
+          <div><p class="eyebrow">The style edit</p><h3 id="style-heading">A feeling called <em>style.</em></h3></div>
+          <p class="chapter-heading__description">Outfits, footwear and details gathered into visual stories worth saving.</p>
+        </div>
+        <div class="style-feature">
+          <figure class="project project--sneakers" data-project data-index="06" data-title="Made for the everyday" data-detail="Footwear / Product film" data-reveal>
+            <div class="project__media" style="--ratio: 720 / 1280">
+              <video controls muted playsinline preload="none" width="720" height="1280" data-preview-time="8.8" aria-label="Sneaker product film"><source src="assets/media/lv_7627484597755989269_20261113153930(5).mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play Made for the everyday video" aria-haspopup="dialog"></button>
+            </div>
+            <figcaption class="project__caption"><div><span>06 / FOOTWEAR FILM</span><h4>Made for the everyday</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
+          </figure>
+          <figure class="project project--shoes" data-project data-index="07" data-title="Something to step into" data-detail="Fashion / Visual edit" data-reveal>
+            <div class="project__media" style="--ratio: 1024 / 2020">
+              <video controls muted playsinline preload="none" width="1024" height="2020" aria-label="Fashion and shoes visual edit"><source src="assets/media/ugc-video-01(3).mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play Something to step into video" aria-haspopup="dialog"></button>
+            </div>
+            <figcaption class="project__caption"><div><span>07 / FASHION EDIT</span><h4>Something to step into</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
+          </figure>
+          <div class="margin-note margin-note--style" data-reveal><span class="margin-note__star" aria-hidden="true">✦</span><p>A little inspiration <em>for the everyday.</em></p><span class="margin-note__line" aria-hidden="true"></span></div>
+        </div>
+        <div class="style-more">
+          <figure class="project project--outfits" data-project data-index="08" data-title="The everyday edit" data-detail="Fashion / Outfit inspiration" data-reveal>
+            <div class="project__media" style="--ratio: 720 / 1280">
+              <video controls muted playsinline preload="none" width="720" height="1280" data-preview-time="6" aria-label="Outfit inspiration video"><source src="assets/media/reset_metadata_lv_7654793459022302484_20261117145706(3).mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play The everyday edit video" aria-haspopup="dialog"></button>
+            </div>
+            <figcaption class="project__caption"><div><span>08 / OUTFIT INSPIRATION</span><h4>The everyday edit</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
+          </figure>
+          <figure class="project project--nails" data-project data-index="09" data-title="At your fingertips" data-detail="Nail art / Mood board" data-reveal>
+            <div class="project__media" style="--ratio: 1000 / 1500">
+              <video controls muted playsinline preload="none" width="1000" height="1500" data-preview-time="2.5" aria-label="Nail art mood-board video"><source src="assets/media/VID_20251206_001457_902.mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play At your fingertips video" aria-haspopup="dialog"></button>
+            </div>
+            <figcaption class="project__caption"><div><span>09 / NAIL ART MOOD BOARD</span><h4>At your fingertips</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="chapter chapter--objects" aria-labelledby="objects-heading">
+        <div class="chapter-heading" data-reveal>
+          <p class="chapter-heading__number">03 <span>/ 03</span></p>
+          <div><p class="eyebrow">The object edit</p><h3 id="objects-heading">Little things, <em>lovingly told.</em></h3></div>
+          <p class="chapter-heading__description">Product-first stories with a little movement and a lot of attention to detail.</p>
+        </div>
+        <div class="object-gallery">
+          <figure class="project project--gold" data-project data-index="10" data-title="A little golden moment" data-detail="Jewellery / Product-first UGC" data-reveal>
+            <div class="project__media" style="--ratio: 1080 / 1080">
+              <video controls muted playsinline preload="none" width="1080" height="1080" aria-label="Jewellery product-first UGC video"><source src="assets/media/lv-ugc(2).mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play A little golden moment video" aria-haspopup="dialog"></button>
+            </div>
+            <figcaption class="project__caption"><div><span>10 / JEWELLERY UGC</span><h4>A little golden moment</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
+          </figure>
+          <figure class="project project--bracelet" data-project data-index="11" data-title="Little luxuries" data-detail="Jewellery / Product visual" data-reveal>
+            <div class="project__media" style="--ratio: 720 / 1280">
+              <video controls muted playsinline preload="none" width="720" height="1280" data-preview-time="2" aria-label="Jewellery bracelet visual video"><source src="assets/media/peaceful-notes.mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play Little luxuries video" aria-haspopup="dialog"></button>
+            </div>
+            <figcaption class="project__caption"><div><span>11 / PRODUCT VISUAL</span><h4>Little luxuries</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
+          </figure>
+          <figure class="project project--motion" data-project data-index="12" data-title="Gloss, in motion" data-detail="Beauty / Creative edit" data-reveal>
+            <div class="project__media" style="--ratio: 720 / 1278">
+              <video controls muted playsinline preload="none" width="720" height="1278" data-preview-time="3.2" aria-label="Lip gloss visual motion video"><source src="assets/media/lv_7647135303001476353_20261113154345(4).mp4" type="video/mp4">Your browser does not support embedded video.</video>
+              <button class="project__open" type="button" aria-label="Play Gloss, in motion video" aria-haspopup="dialog"></button>
+            </div>
+            <figcaption class="project__caption"><div><span>12 / MOTION EDIT</span><h4>Gloss, in motion</h4></div><span class="project__cue" aria-hidden="true">Play <b>↗</b></span></figcaption>
+          </figure>
+        </div>
+      </section>
+    </section>
+
+    <section class="services" id="services" aria-labelledby="services-heading">
+      <div class="shell services__inner">
+        <div class="services__intro" data-reveal>
+          <p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> Ways to work together <span class="eyebrow__line" aria-hidden="true"></span> 02</p>
+          <h2 id="services-heading">From an idea to<br><em>something you can see.</em></h2>
+          <p>A little creativity, thoughtfully tailored to what your brand needs.</p>
+          <a class="text-link text-link--underlined" href="#contact">Let's make something <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="service-list" data-reveal>
+          <article class="service"><span class="service__number">01</span><div><h3>Pinterest content</h3><p>Save-worthy pins and visual content designed to help your ideas be discovered.</p></div><span class="service__arrow" aria-hidden="true">↗</span></article>
+          <article class="service"><span class="service__number">02</span><div><h3>Faceless product visuals</h3><p>Product-led imagery and short-form edits that put the little details in focus.</p></div><span class="service__arrow" aria-hidden="true">↗</span></article>
+          <article class="service"><span class="service__number">03</span><div><h3>One-page websites</h3><p>Considered websites and landing pages that give your brand an inviting digital home.</p></div><span class="service__arrow" aria-hidden="true">↗</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="about shell" id="about" aria-labelledby="about-heading" data-reveal>
+      <div class="about__label"><p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> A note from the studio <span class="eyebrow__line" aria-hidden="true"></span> 03</p><span class="about__ornament" aria-hidden="true">✧</span></div>
+      <div class="about__content"><h2 id="about-heading">A little beauty<br>in <em>everything.</em></h2><div><p>TheAeralla is an independent creative studio drawn to the details that make an idea feel special.</p><p>From a single pin to a product story or a digital home, every piece is made with intention and a love for visual storytelling.</p></div></div>
+    </section>
+
+    <section class="contact" id="contact" aria-labelledby="contact-heading">
+      <div class="shell contact__inner" data-reveal>
+        <div><p class="eyebrow"><span class="spark" aria-hidden="true">✦</span> Have an idea? <span class="eyebrow__line" aria-hidden="true"></span> 04</p><h2 id="contact-heading">Let's make something<br><em>worth remembering.</em></h2></div>
+        <div class="contact__links"><p>For projects, collaborations, or simply to say hello.</p><a class="contact__email" href="mailto:hawkarc2003@gmail.com?subject=Creative%20project%20inquiry%20%E2%80%94%20TheAeralla">hawkarc2003@gmail.com <span aria-hidden="true">↗</span></a><div class="contact__socials"><a href="https://www.instagram.com/theaeralla/" target="_blank" rel="noopener noreferrer">Instagram <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a><a href="https://in.pinterest.com/TRENDCART77/" target="_blank" rel="noopener noreferrer">Pinterest <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></div></div>
+        <span class="contact__star" aria-hidden="true">✧</span>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="shell site-footer__inner">
-      <div><span class="footer-signature">TheAeralla<span aria-hidden="true">✦</span></span><p>Visual stories, made with feeling.</p></div>
-      <a href="mailto:hawkarc2003@gmail.com?subject=Creative%20project%20inquiry%20%E2%80%94%20TheAeralla">hawkarc2003@gmail.com <span aria-hidden="true">↗</span></a>
-      <a class="footer-top" href="#top">Back to top <span aria-hidden="true">↑</span></a>
-    </div>
-  </footer>
+  <footer class="site-footer"><div class="shell footer-inner"><p>© TheAeralla Creative Studio <span aria-hidden="true">✦</span></p><p>Visual stories, made with feeling.</p><a href="#top">Back to top <span aria-hidden="true">↑</span></a></div></footer>
 
   <dialog class="viewer" id="project-viewer" aria-labelledby="viewer-title" aria-describedby="viewer-detail">
     <div class="viewer__panel">
-      <div class="viewer__top">
-        <span class="viewer__brand">TheAeralla<span aria-hidden="true">✦</span></span>
-        <span class="viewer__top-label">The visual diary</span>
-        <button class="viewer__close" type="button" aria-label="Close viewer"><span aria-hidden="true">×</span></button>
-      </div>
-      <div class="viewer__body">
-        <div class="viewer__visual" id="viewer-visual"></div>
-        <div class="viewer__details">
-          <p class="eyebrow viewer__eyebrow" id="viewer-index"></p>
-          <h2 id="viewer-title" aria-live="polite">Selected project</h2>
-          <p class="viewer__detail" id="viewer-detail"></p>
-          <a class="viewer__contact" href="mailto:hawkarc2003@gmail.com?subject=Creative%20project%20inquiry%20%E2%80%94%20TheAeralla">Let's make something <span aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-      <div class="viewer__bottom">
-        <span id="viewer-counter" aria-live="polite"></span>
-        <div class="viewer__navigation">
-          <button type="button" class="viewer__previous" aria-label="Previous project"><span aria-hidden="true">←</span> <span class="viewer__nav-label">Previous</span></button>
-          <button type="button" class="viewer__next" aria-label="Next project"><span class="viewer__nav-label">Next</span> <span aria-hidden="true">→</span></button>
-        </div>
-      </div>
+      <div class="viewer__top"><span class="viewer__brand">TheAeralla <span aria-hidden="true">✦</span></span><span class="viewer__top-label">Selected work</span><button class="viewer__close" type="button" aria-label="Close viewer"><span aria-hidden="true">×</span></button></div>
+      <div class="viewer__body"><div class="viewer__visual" id="viewer-visual"></div><div class="viewer__details"><p class="eyebrow" id="viewer-index"></p><h2 id="viewer-title" aria-live="polite">Selected project</h2><p class="viewer__detail" id="viewer-detail"></p><p class="viewer__hint" id="viewer-hint" hidden></p><a class="viewer__contact" href="mailto:hawkarc2003@gmail.com?subject=Creative%20project%20inquiry%20%E2%80%94%20TheAeralla">Start a project <span aria-hidden="true">↗</span></a></div></div>
+      <div class="viewer__bottom"><span id="viewer-counter" aria-live="polite"></span><div class="viewer__navigation"><button class="viewer__previous" type="button" aria-label="Previous project"><span aria-hidden="true">←</span> <span class="viewer__nav-label">Previous</span></button><button class="viewer__next" type="button" aria-label="Next project"><span class="viewer__nav-label">Next</span> <span aria-hidden="true">→</span></button></div></div>
     </div>
   </dialog>
 </body>

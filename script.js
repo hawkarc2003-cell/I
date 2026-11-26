@@ -1,310 +1,266 @@
 (() => {
-  const root = document.documentElement;
-  const grid = document.querySelector('#media-grid');
-  const panel = document.querySelector('#gallery-panel');
-  const tabs = Array.from(document.querySelectorAll('.gallery-tab'));
-  const tiles = Array.from(document.querySelectorAll('.tile'));
-  const videos = Array.from(document.querySelectorAll('.tile video'));
-  const filterStatus = document.querySelector('#filter-status');
-  const viewer = document.querySelector('#project-viewer');
-  const visual = document.querySelector('#viewer-visual');
-  const closeButton = document.querySelector('.viewer__close');
-  const previousButton = document.querySelector('.viewer__previous');
-  const nextButton = document.querySelector('.viewer__next');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const supportsViewer = Boolean(viewer && typeof viewer.showModal === 'function');
-  const previewTimes = new WeakMap();
+  "use strict";
 
-  root.classList.add('js-enabled');
-  if (supportsViewer) root.classList.add('js-viewer-enabled');
+  // A Git-hosted HTML preview has to proxy the page itself. For that preview only,
+  // serve the unchanged media through jsDelivr, which provides video MIME types
+  // and byte-range support. Normal hosting continues to use local files.
+  if (window.location.hostname === "html-preview.github.io") {
+    const previewUrl = new URL(window.location.href).searchParams.get("url") || "";
+    const match = previewUrl.match(/^https:\/\/github\.com\/hawkarc2003-cell\/I\/blob\/([a-f0-9]{40})\/index\.html$/i);
 
-  // Read-only GitHub preview services otherwise load MP4s from GitHub's generic
-  // binary MIME. For a commit-pinned preview only, use the same original bytes
-  // through a CDN that supplies video/mp4 and range requests. Real hosting stays
-  // relative, and never depends on either preview service.
-  let previewPath = '';
-  if (/^(?:raw|rawcdn)\.githack\.com$/i.test(location.hostname)) {
-    previewPath = location.pathname;
-  } else if (location.hostname === 'html-preview.github.io') {
-    const previewBase = new URL(document.baseURI);
-    if (previewBase.hostname === 'raw.githubusercontent.com') previewPath = previewBase.pathname;
-  }
-  const previewMatch = previewPath.match(/^\/([\w.-]+)\/([\w.-]+)\/([a-f0-9]{40})(?:\/|$)/i);
-  if (previewMatch) {
-    const previewAssets = `https://cdn.jsdelivr.net/gh/${previewMatch[1]}/${previewMatch[2]}@${previewMatch[3]}/`;
-    videos.forEach((video) => {
-      const source = video.querySelector('source');
-      const path = source && source.getAttribute('src');
-      if (path && path.startsWith('assets/media/')) {
-        const previewSource = new URL(path, previewAssets).href;
-        source.src = previewSource;
-        // Some preview wrappers start selecting the original source before this
-        // script runs. Reset those videos so playback uses the updated source.
-        if (video.currentSrc && video.currentSrc !== previewSource) video.load();
-      }
-    });
-  }
-
-  // Use small grid tracks to keep every original aspect ratio while avoiding
-  // large empty gaps between differently shaped pieces.
-  let layoutFrame = 0;
-  function layoutGrid() {
-    layoutFrame = 0;
-    grid.classList.add('is-masonry');
-    const spacing = window.innerWidth <= 520 ? 14 : 22;
-    tiles.forEach((tile) => {
-      if (tile.hidden) {
-        tile.style.gridRowEnd = '';
-        return;
-      }
-      tile.style.gridRowEnd = `span ${Math.max(1, Math.ceil((tile.offsetHeight + spacing) / 4))}`;
-    });
-  }
-  function scheduleLayout() {
-    if (!layoutFrame) layoutFrame = requestAnimationFrame(layoutGrid);
-  }
-  scheduleLayout();
-  window.addEventListener('resize', scheduleLayout, { passive: true });
-  if ('ResizeObserver' in window) {
-    const sizeObserver = new ResizeObserver(scheduleLayout);
-    tiles.forEach((tile) => sizeObserver.observe(tile));
-  }
-
-  let currentFilter = 'all';
-  let filterTimer = 0;
-  function applyFilter() {
-    const visibleTiles = tiles.filter((tile) => {
-      const visible = currentFilter === 'all' || tile.dataset.kind === currentFilter;
-      tile.hidden = !visible;
-      return visible;
-    });
-    const count = visibleTiles.length;
-    filterStatus.replaceChildren(document.createTextNode(`${count} ${count === 1 ? 'piece' : 'pieces'} `));
-    const sparkle = document.createElement('span');
-    sparkle.setAttribute('aria-hidden', 'true');
-    sparkle.textContent = '✧';
-    filterStatus.append(sparkle);
-    grid.classList.remove('is-switching');
-    scheduleLayout();
-  }
-  function selectTab(tab) {
-    const nextFilter = tab.dataset.filter;
-    if (nextFilter === currentFilter && !filterTimer) return;
-    currentFilter = nextFilter;
-    tabs.forEach((item) => {
-      const selected = item === tab;
-      item.setAttribute('aria-selected', String(selected));
-      item.tabIndex = selected ? 0 : -1;
-    });
-    panel.setAttribute('aria-labelledby', tab.id);
-    window.clearTimeout(filterTimer);
-    if (reduceMotion.matches) {
-      filterTimer = 0;
-      applyFilter();
-      return;
+    if (match) {
+      const cdnRoot = `https://cdn.jsdelivr.net/gh/hawkarc2003-cell/I@${match[1]}/`;
+      document.querySelectorAll("video source[src]").forEach((source) => {
+        source.src = new URL(source.getAttribute("src"), cdnRoot).href;
+        source.parentElement.dataset.previewSourceUpdated = "true";
+      });
     }
-    grid.classList.add('is-switching');
-    filterTimer = window.setTimeout(() => {
-      filterTimer = 0;
-      applyFilter();
-    }, 140);
   }
-  tabs.forEach((tab, index) => {
-    tab.addEventListener('click', () => selectTab(tab));
-    tab.addEventListener('keydown', (event) => {
-      let destination;
-      if (event.key === 'ArrowRight') destination = (index + 1) % tabs.length;
-      else if (event.key === 'ArrowLeft') destination = (index - 1 + tabs.length) % tabs.length;
-      else if (event.key === 'Home') destination = 0;
-      else if (event.key === 'End') destination = tabs.length - 1;
-      else return;
-      event.preventDefault();
-      tabs[destination].focus();
-      selectTab(tabs[destination]);
+
+  // Some HTML previewers add a raw-file <base>. Fragment links should still
+  // navigate this document, not the source file at that base URL.
+  const onPreview = window.location.hostname === "html-preview.github.io";
+  const navigateToSection = (event, link) => {
+    const href = link.getAttribute("href") || "";
+    const destination = new URL(href, document.baseURI);
+    // The previewer rewrites fragment links to its own full URL. Ignore links
+    // to other pages even if they happen to contain a fragment.
+    if (!href.startsWith("#") && (destination.origin !== window.location.origin ||
+        destination.pathname !== window.location.pathname || destination.search !== window.location.search)) return;
+    const hash = destination.hash;
+    if (!hash) return;
+    const target = document.getElementById(hash.slice(1));
+    if (!target) return;
+    event.preventDefault();
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    if (link.classList.contains("skip-link")) target.focus({ preventScroll: true });
+    try {
+      window.history.replaceState(null, "", `${window.location.origin}${window.location.pathname}${window.location.search}${hash}`);
+    } catch (_) {
+      // Scrolling is sufficient if a hosting environment blocks history changes.
+    }
+  };
+
+  const menu = document.querySelector(".mobile-menu");
+  document.querySelectorAll('a[href*="#"]').forEach((link) => {
+    link.addEventListener("click", (event) => {
+      if (menu && menu.contains(link)) menu.open = false;
+      if (onPreview) navigateToSection(event, link);
     });
   });
-
-  // Reveal work gently as it enters view, without altering the source media.
-  if ('IntersectionObserver' in window && !reduceMotion.matches) {
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
-      });
-    }, { threshold: .06, rootMargin: '0px 0px 60px 0px' });
-    root.classList.add('reveal-ready');
-    document.querySelectorAll('[data-reveal]').forEach((item) => revealObserver.observe(item));
-  }
-
-  function cuePreview(video) {
-    if (!supportsViewer || visual.contains(video) || !Number.isFinite(video.duration) || video.duration <= 0) return;
-    // Some reels begin with a transition; choose a representative frame when
-    // one is specified, otherwise use a moment near the start of the original.
-    const chosenTime = Number.parseFloat(video.dataset.previewTime);
-    const time = Number.isFinite(chosenTime)
-      ? Math.min(chosenTime, Math.max(0, video.duration - .05))
-      : Math.min(3, Math.max(.3, video.duration * .12));
-    previewTimes.set(video, time);
-    try { video.currentTime = time; } catch (_) { /* Controls remain available in the viewer. */ }
-  }
-  videos.forEach((video) => {
-    if (supportsViewer) video.controls = false;
-    video.muted = true;
-    video.addEventListener('loadedmetadata', () => cuePreview(video));
+  document.addEventListener("click", (event) => {
+    if (menu && menu.open && !menu.contains(event.target)) menu.open = false;
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && menu && menu.open) {
+      menu.open = false;
+      menu.querySelector("summary").focus();
+    }
   });
 
-  // Only load metadata for nearby reels; the full-size originals aren't all
-  // requested at once when someone opens the page on a phone.
-  if ('IntersectionObserver' in window) {
-    const mediaObserver = new IntersectionObserver((entries) => {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if ("IntersectionObserver" in window && !reducedMotion.matches) {
+    const revealItems = document.querySelectorAll("[data-reveal]");
+    const revealObserver = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
-        const video = entry.target;
-        video.preload = 'metadata';
-        if (video.readyState === 0 && video.paused) video.load();
-        mediaObserver.unobserve(video);
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
       });
-    }, { rootMargin: '450px 0px' });
-    videos.forEach((video) => mediaObserver.observe(video));
+    }, { threshold: 0.08, rootMargin: "0px 0px -30px 0px" });
+    document.documentElement.classList.add("reveal-ready");
+    revealItems.forEach((item) => revealObserver.observe(item));
+  }
+
+  // Load only previews near the viewport. Seeking a few selected thumbnails
+  // changes the preview frame, never the original file or playback speed.
+  const videoPreviews = Array.from(document.querySelectorAll(".project video"));
+  const preparePreview = (video) => {
+    const previewTime = Number(video.dataset.previewTime || 0);
+    if (previewTime > 0) {
+      video.addEventListener("loadedmetadata", () => {
+        if (!video.dataset.inViewer && video.duration > previewTime) video.currentTime = previewTime;
+      }, { once: true });
+    }
+    if (video.preload === "none" || video.dataset.previewSourceUpdated) {
+      delete video.dataset.previewSourceUpdated;
+      video.load();
+      video.preload = "metadata";
+    }
+  };
+  if ("IntersectionObserver" in window) {
+    const previewObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        preparePreview(entry.target);
+        observer.unobserve(entry.target);
+      });
+    }, { rootMargin: "500px 0px" });
+    videoPreviews.forEach((video) => previewObserver.observe(video));
   } else {
-    videos.forEach((video) => { video.preload = 'metadata'; });
+    videoPreviews.forEach(preparePreview);
   }
 
-  if (!supportsViewer) return;
+  const dialog = document.getElementById("project-viewer");
+  const projects = Array.from(document.querySelectorAll("[data-project]"));
+  if (!dialog || typeof dialog.showModal !== "function" || projects.length === 0) return;
 
-  let activeTile = null;
-  let returnFocus = null;
-  let closeTimer = 0;
+  const visual = document.getElementById("viewer-visual");
+  const title = document.getElementById("viewer-title");
+  const detail = document.getElementById("viewer-detail");
+  const hint = document.getElementById("viewer-hint");
+  const indexLabel = document.getElementById("viewer-index");
+  const counter = document.getElementById("viewer-counter");
+  const closeButton = dialog.querySelector(".viewer__close");
+  const previousButton = dialog.querySelector(".viewer__previous");
+  const nextButton = dialog.querySelector(".viewer__next");
+  const reduced = () => reducedMotion.matches;
+  let currentIndex = -1;
+  let activeMedia = null;
+  let opener = null;
+  let closeTimer = null;
   let closing = false;
+  let animationFrame = null;
 
-  function restoreMedia() {
-    if (!activeTile) return;
-    const media = visual.querySelector('img, video');
-    if (media) {
-      if (media.tagName === 'VIDEO') {
-        media.pause();
-        media.muted = true;
-        media.controls = false;
+  const returnMedia = () => {
+    if (!activeMedia) return;
+    const { node, home, project } = activeMedia;
+    if (node instanceof HTMLVideoElement) {
+      node.pause();
+      node.controls = false;
+      delete node.dataset.inViewer;
+    }
+    home.insertBefore(node, home.querySelector(".project__open"));
+    project.classList.remove("project--in-viewer");
+    activeMedia = null;
+  };
+
+  const displayProject = (index) => {
+    if (index < 0 || index >= projects.length) return;
+    returnMedia();
+    const project = projects[index];
+    const home = project.querySelector(".project__media");
+    const node = home && home.querySelector("img, video");
+    if (!home || !node) return;
+    currentIndex = index;
+    activeMedia = { node, home, project };
+    project.classList.add("project--in-viewer");
+    if (node instanceof HTMLVideoElement) {
+      node.pause();
+      node.controls = true;
+      node.dataset.inViewer = "true";
+    }
+    visual.appendChild(node);
+    title.textContent = project.dataset.title;
+    detail.textContent = project.dataset.detail;
+    const isVideo = node instanceof HTMLVideoElement;
+    hint.hidden = !isVideo;
+    hint.textContent = isVideo ? "Starts muted. Use the controls to adjust sound where available." : "";
+    dialog.setAttribute("aria-describedby", isVideo ? "viewer-detail viewer-hint" : "viewer-detail");
+    indexLabel.textContent = `SELECTED WORK / ${project.dataset.index}`;
+    counter.textContent = `${String(index + 1).padStart(2, "0")} / ${String(projects.length).padStart(2, "0")}`;
+    previousButton.disabled = index === 0;
+    nextButton.disabled = index === projects.length - 1;
+    if (node instanceof HTMLVideoElement) {
+      if (node.dataset.previewSourceUpdated) {
+        delete node.dataset.previewSourceUpdated;
+        node.load();
+        node.preload = "metadata";
       }
-      activeTile.querySelector('.tile__media').prepend(media);
-      if (media.tagName === 'VIDEO') {
-        const time = previewTimes.get(media);
-        if (time !== undefined) {
-          try { media.currentTime = time; } catch (_) { /* Leave the video paused. */ }
-        } else {
-          cuePreview(media);
-        }
+      if (node.readyState >= 1) {
+        try { node.currentTime = 0; } catch (_) { /* The controls remain usable. */ }
+      } else {
+        node.addEventListener("loadedmetadata", () => {
+          if (node.dataset.inViewer) {
+            try { node.currentTime = 0; } catch (_) { /* The controls remain usable. */ }
+          }
+        }, { once: true });
+        node.preload = "metadata";
+        node.load();
       }
     }
-    activeTile = null;
-    scheduleLayout();
-  }
+  };
 
-  function showTile(tile) {
-    if (!tile || closing) return;
-    const firstOpen = !viewer.open;
-    const focusedControl = document.activeElement;
-    if (firstOpen) returnFocus = tile.querySelector('.tile__open');
-    else restoreMedia();
+  const playActiveVideo = () => {
+    if (!activeMedia || !(activeMedia.node instanceof HTMLVideoElement)) return;
+    // Playback starts from the beginning; visitors can unmute or use the native controls.
+    activeMedia.node.muted = true;
+    const playing = activeMedia.node.play();
+    if (playing && typeof playing.catch === "function") playing.catch(() => {});
+  };
 
-    const media = tile.querySelector('.tile__media > img, .tile__media > video');
-    if (!media) return;
-    activeTile = tile;
-    visual.append(media);
-
-    const visibleTiles = tiles.filter((item) => !item.hidden);
-    const position = visibleTiles.indexOf(tile);
-    const kind = tile.dataset.kind === 'reel' ? 'Reel' : 'Post';
-    document.querySelector('#viewer-index').textContent = `${tile.dataset.index} / ${kind}`;
-    document.querySelector('#viewer-title').textContent = tile.dataset.title;
-    document.querySelector('#viewer-detail').textContent = tile.dataset.detail;
-    document.querySelector('#viewer-counter').textContent = `${String(position + 1).padStart(2, '0')} / ${String(visibleTiles.length).padStart(2, '0')}`;
-    previousButton.disabled = position <= 0;
-    nextButton.disabled = position >= visibleTiles.length - 1;
-
-    if (firstOpen) {
-      // Set the accessible title before opening the native dialog.
-      viewer.showModal();
-      document.body.classList.add('viewer-open');
-      requestAnimationFrame(() => {
-        if (viewer.open && !closing) viewer.classList.add('is-open');
+  const openProject = (index, button) => {
+    if (dialog.open || closing) return;
+    opener = button;
+    displayProject(index);
+    try {
+      dialog.showModal();
+      document.body.classList.add("viewer-open");
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = null;
+        dialog.classList.add("is-open");
       });
       closeButton.focus();
-    } else if (focusedControl === previousButton && previousButton.disabled) {
-      nextButton.focus();
-    } else if (focusedControl === nextButton && nextButton.disabled) {
-      previousButton.focus();
+      playActiveVideo();
+    } catch (_) {
+      returnMedia();
+      currentIndex = -1;
+      videoPreviews.forEach((video) => { video.controls = true; });
+      document.documentElement.classList.remove("js-viewer-enabled");
+      button.blur();
     }
+  };
 
-    if (media.tagName === 'VIDEO') {
-      media.controls = true;
-      media.muted = false;
-      try { media.currentTime = 0; } catch (_) { /* Playback starts when metadata is ready. */ }
-      const playAttempt = media.play();
-      if (playAttempt && typeof playAttempt.catch === 'function') {
-        playAttempt.catch((error) => {
-          if (error.name !== 'AbortError' && activeTile === tile && viewer.open && !closing) {
-            document.querySelector('#viewer-detail').textContent = `${tile.dataset.detail} · Use the controls to play`;
-          }
-        });
-      }
-    }
-  }
+  const finishClosing = () => {
+    if (closeTimer) window.clearTimeout(closeTimer);
+    closeTimer = null;
+    if (dialog.open) dialog.close();
+  };
 
-  function closeViewer() {
-    if (!viewer.open || closing) return;
+  const closeProject = () => {
+    if (!dialog.open || closing) return;
     closing = true;
-    const playingVideo = visual.querySelector('video');
-    if (playingVideo) playingVideo.pause();
-    viewer.classList.remove('is-open');
-    const finish = () => {
-      closeTimer = 0;
-      if (viewer.open) viewer.close();
-    };
-    if (reduceMotion.matches) finish();
-    else closeTimer = window.setTimeout(finish, 220);
-  }
+    if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+    if (activeMedia && activeMedia.node instanceof HTMLVideoElement) activeMedia.node.pause();
+    dialog.classList.remove("is-open");
+    if (reduced()) finishClosing();
+    else closeTimer = window.setTimeout(finishClosing, 220);
+  };
 
-  tiles.forEach((tile) => {
-    tile.querySelector('.tile__open').addEventListener('click', () => showTile(tile));
+  projects.forEach((project, index) => {
+    const button = project.querySelector(".project__open");
+    if (button) button.addEventListener("click", () => openProject(index, button));
   });
-  closeButton.addEventListener('click', closeViewer);
-  viewer.addEventListener('cancel', (event) => {
+  closeButton.addEventListener("click", closeProject);
+  previousButton.addEventListener("click", () => {
+    displayProject(currentIndex - 1);
+    playActiveVideo();
+  });
+  nextButton.addEventListener("click", () => {
+    displayProject(currentIndex + 1);
+    playActiveVideo();
+  });
+  dialog.addEventListener("cancel", (event) => {
     event.preventDefault();
-    closeViewer();
+    closeProject();
   });
-  viewer.addEventListener('close', () => {
-    window.clearTimeout(closeTimer);
-    closeTimer = 0;
-    viewer.classList.remove('is-open');
-    restoreMedia();
-    document.body.classList.remove('viewer-open');
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) closeProject();
+  });
+  dialog.addEventListener("close", () => {
+    if (closeTimer) window.clearTimeout(closeTimer);
+    closeTimer = null;
     closing = false;
-    if (returnFocus && returnFocus.isConnected) returnFocus.focus();
-    returnFocus = null;
-  });
-  viewer.addEventListener('click', (event) => {
-    if (event.target === viewer) closeViewer();
+    dialog.classList.remove("is-open");
+    document.body.classList.remove("viewer-open");
+    returnMedia();
+    currentIndex = -1;
+    if (opener && opener.isConnected) opener.focus();
+    opener = null;
   });
 
-  function moveViewer(direction) {
-    if (!activeTile || closing) return;
-    const visibleTiles = tiles.filter((tile) => !tile.hidden);
-    const position = visibleTiles.indexOf(activeTile);
-    const destination = visibleTiles[position + direction];
-    if (destination) showTile(destination);
-  }
-  previousButton.addEventListener('click', () => moveViewer(-1));
-  nextButton.addEventListener('click', () => moveViewer(1));
-  viewer.addEventListener('keydown', (event) => {
-    if (event.target.tagName === 'VIDEO') return;
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-      event.preventDefault();
-      moveViewer(1);
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      moveViewer(-1);
-    }
-  });
+  videoPreviews.forEach((video) => { video.controls = false; });
+  document.documentElement.classList.add("js-viewer-enabled");
 })();
