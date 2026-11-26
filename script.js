@@ -131,7 +131,9 @@
   document.querySelectorAll('a[href*="#"]').forEach((link) => {
     link.addEventListener("click", (event) => {
       if (menu && menu.contains(link)) menu.open = false;
-      if (onPreview) navigateToSection(event, link);
+      const opensFanViewer = link.hasAttribute("data-fan-project") &&
+        document.documentElement.classList.contains("js-viewer-enabled");
+      if (onPreview && !opensFanViewer) navigateToSection(event, link);
     });
   });
   document.addEventListener("click", (event) => {
@@ -156,6 +158,143 @@
     }, { threshold: 0.08, rootMargin: "0px 0px -30px 0px" });
     document.documentElement.classList.add("reveal-ready");
     revealItems.forEach((item) => revealObserver.observe(item));
+  }
+
+  // Fan-shaped work carousel. Its links still lead to the full projects when
+  // JavaScript or the native dialog is unavailable.
+  const fan = document.querySelector(".work-fan");
+  const fanCards = fan ? Array.from(fan.querySelectorAll("[data-fan-project]")) : [];
+  if (fan && fanCards.length) {
+    const fanTrack = fan.querySelector(".work-fan__cards");
+    const previous = fan.querySelector("[data-fan-previous]");
+    const next = fan.querySelector("[data-fan-next]");
+    const toggle = fan.querySelector("[data-fan-toggle]");
+    const number = fan.querySelector("[data-fan-number]");
+    const announcement = fan.querySelector("[data-fan-announcement]");
+    const smallFan = window.matchMedia("(max-width: 800px)");
+    const fanDialog = document.getElementById("project-viewer");
+    let current = Math.min(3, fanCards.length - 1);
+    let playing = !reducedMotion.matches;
+    let inView = !("IntersectionObserver" in window);
+    let pointerOver = false;
+    let explicitPlay = false;
+    let timer = null;
+    let touchStart = null;
+    let ignoreTap = false;
+
+    const updateToggle = () => {
+      toggle.textContent = playing ? "Pause motion" : "Play motion";
+      toggle.setAttribute("aria-label", playing ? "Pause motion, stop automatic movement" : "Play motion, start automatic movement");
+    };
+    const renderFan = (announce = false) => {
+      const visibleDistance = smallFan.matches ? 2 : 3;
+      const focusedCard = fanCards.includes(document.activeElement) ? document.activeElement : null;
+      fanCards.forEach((card, index) => {
+        let distance = index - current;
+        if (distance > fanCards.length / 2) distance -= fanCards.length;
+        if (distance < -fanCards.length / 2) distance += fanCards.length;
+        const visible = Math.abs(distance) <= visibleDistance;
+        card.dataset.fanPosition = visible ? String(distance) : (distance < 0 ? "outside-left" : "outside-right");
+        card.tabIndex = visible ? 0 : -1;
+        card.setAttribute("aria-hidden", visible ? "false" : "true");
+      });
+      // Older browsers without overflow: clip must not retain a hidden scroll offset.
+      fanTrack.scrollLeft = 0;
+      if (focusedCard && focusedCard.getAttribute("aria-hidden") === "true") {
+        fanCards[current].focus({ preventScroll: true });
+      }
+      number.textContent = String(current + 1).padStart(2, "0");
+      if (announce) {
+        const target = document.getElementById(`project-${fanCards[current].dataset.fanProject}`);
+        announcement.textContent = `Work ${current + 1} of ${fanCards.length}: ${target ? target.dataset.title : "Selected project"}.`;
+      }
+    };
+    const canMove = () => playing && inView && !pointerOver &&
+      (!fan.contains(document.activeElement) || explicitPlay) &&
+      !(fanDialog && fanDialog.open) && document.visibilityState !== "hidden";
+    const schedule = () => {
+      if (timer) window.clearTimeout(timer);
+      timer = null;
+      if (!canMove()) return;
+      timer = window.setTimeout(() => {
+        if (canMove()) {
+          current = (current + 1) % fanCards.length;
+          renderFan();
+        }
+        schedule();
+      }, 5500);
+    };
+    const moveFan = (direction) => {
+      playing = false;
+      explicitPlay = false;
+      current = (current + direction + fanCards.length) % fanCards.length;
+      updateToggle();
+      renderFan(true);
+      schedule();
+    };
+
+    fanCards.forEach((card, index) => card.style.setProperty("--fan-delay", `${Math.min(index, 7) * 55}ms`));
+    renderFan();
+    updateToggle();
+    fan.classList.add("is-enhanced");
+    previous.addEventListener("click", () => moveFan(-1));
+    next.addEventListener("click", () => moveFan(1));
+    toggle.addEventListener("click", () => {
+      playing = !playing;
+      explicitPlay = playing;
+      updateToggle();
+      schedule();
+    });
+    fan.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      moveFan(event.key === "ArrowLeft" ? -1 : 1);
+    });
+    fan.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "mouse") { pointerOver = true; schedule(); }
+    });
+    fan.addEventListener("pointerleave", (event) => {
+      if (event.pointerType === "mouse") { pointerOver = false; schedule(); }
+    });
+    fan.addEventListener("focusin", () => { explicitPlay = false; schedule(); });
+    fan.addEventListener("focusout", () => window.setTimeout(schedule, 0));
+    fan.addEventListener("click", (event) => {
+      if (ignoreTap && event.target.closest("[data-fan-project]")) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+    fanTrack.addEventListener("touchstart", (event) => {
+      if (event.touches.length === 1) touchStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    }, { passive: true });
+    fanTrack.addEventListener("touchend", (event) => {
+      if (!touchStart || !event.changedTouches.length) return;
+      const dx = event.changedTouches[0].clientX - touchStart.x;
+      const dy = event.changedTouches[0].clientY - touchStart.y;
+      touchStart = null;
+      if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+      ignoreTap = true;
+      window.setTimeout(() => { ignoreTap = false; }, 400);
+      moveFan(dx < 0 ? 1 : -1);
+    }, { passive: true });
+    const resizeFan = () => { renderFan(); schedule(); };
+    if (typeof smallFan.addEventListener === "function") smallFan.addEventListener("change", resizeFan);
+    else smallFan.addListener(resizeFan);
+    if (typeof reducedMotion.addEventListener === "function") {
+      reducedMotion.addEventListener("change", (event) => {
+        if (event.matches) { playing = false; explicitPlay = false; updateToggle(); }
+        schedule();
+      });
+    }
+    document.addEventListener("visibilitychange", schedule);
+    if (fanDialog) fanDialog.addEventListener("close", schedule);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver((entries) => {
+        inView = entries.some((entry) => entry.isIntersecting);
+        schedule();
+      }, { threshold: .15 }).observe(fan);
+    }
+    schedule();
   }
 
   // Load only previews near the viewport. Seeking a few selected thumbnails
@@ -328,6 +467,15 @@
     const button = project.querySelector(".project__open");
     if (button) button.addEventListener("click", () => openProject(index, button));
   });
+  fanCards.forEach((card) => {
+    const index = projects.findIndex((project) => project.dataset.index === card.dataset.fanProject);
+    if (index < 0) return;
+    card.setAttribute("aria-haspopup", "dialog");
+    card.addEventListener("click", (event) => {
+      event.preventDefault();
+      openProject(index, card);
+    });
+  });
   closeButton.addEventListener("click", closeProject);
   previousButton.addEventListener("click", () => {
     displayProject(currentIndex - 1);
@@ -352,7 +500,7 @@
     document.body.classList.remove("viewer-open");
     returnMedia();
     currentIndex = -1;
-    if (opener && opener.isConnected) opener.focus();
+    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
     opener = null;
   });
 
