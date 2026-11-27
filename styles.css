@@ -1021,7 +1021,9 @@ body.viewer-open .social-rail {
   grid-template-columns: 2.3rem minmax(0, 1fr) auto;
   gap: .9rem;
   padding-block: 1.7rem;
+  color: inherit;
   border-bottom: 1px solid var(--line);
+  text-decoration: none;
 }
 
 .service__number {
@@ -1049,8 +1051,22 @@ body.viewer-open .social-rail {
 }
 
 .service__arrow {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
   color: var(--sky);
+  border: 1px solid rgba(159, 205, 237, .36);
+  border-radius: 50%;
   font-size: 1rem;
+  transition: color .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.service:hover .service__arrow,
+.service:focus-visible .service__arrow {
+  color: var(--night);
+  background: var(--sky);
+  border-color: var(--sky);
 }
 
 .about {

@@ -10,9 +10,17 @@
     delete video.dataset.playBlocked;
     video.dispatchEvent(new Event("work-media-state"));
     const reportBlocked = (error) => {
-      if (!error || error.name !== "NotAllowedError" || !video.dataset.inViewer || playbackAttempts.get(video) !== attempt) return;
-      video.dataset.playBlocked = "true";
-      video.dispatchEvent(new Event("work-media-state"));
+      if (!error || error.name !== "NotAllowedError" || playbackAttempts.get(video) !== attempt) return;
+      if (video.dataset.inViewer) {
+        video.dataset.playBlocked = "true";
+        video.dispatchEvent(new Event("work-media-state"));
+      } else {
+        const status = video.closest(".sample-card")?.querySelector("[data-video-status]");
+        if (status) {
+          status.textContent = "Tap play on the video to start it.";
+          status.hidden = false;
+        }
+      }
     };
     try {
       const result = video.play();
@@ -26,13 +34,23 @@
   // jsDelivr there, but it can reject large repositories. In that case try the
   // unchanged GitHub original, and finally a correctly typed Blob of its bytes.
   // The actual site, when hosted normally, always uses its local originals.
-  if (window.location.hostname === "html-preview.github.io") {
+  const onPreview = window.location.hostname === "html-preview.github.io";
+  if (onPreview) {
     const previewUrl = new URL(window.location.href).searchParams.get("url") || "";
-    const match = previewUrl.match(/^https:\/\/github\.com\/hawkarc2003-cell\/I\/blob\/([a-f0-9]{40})\/index\.html$/i);
+    const match = previewUrl.match(/^https:\/\/(?:github\.com\/hawkarc2003-cell\/I\/blob\/|raw\.githubusercontent\.com\/hawkarc2003-cell\/I\/)([a-f0-9]{40})\/(?:index|service-(?:pinterest|product-visuals|websites))\.html$/i);
 
     if (match) {
       const cdnRoot = `https://cdn.jsdelivr.net/gh/hawkarc2003-cell/I@${match[1]}/`;
       const rawRoot = `https://raw.githubusercontent.com/hawkarc2003-cell/I/${match[1]}/`;
+      // The previewer rewrites some HTML links but not cross-page fragments.
+      // Keep every explicitly marked page link inside this pinned preview.
+      document.querySelectorAll("[data-preview-page]").forEach((link) => {
+        const page = link.dataset.previewPage;
+        if (!/^(?:index|service-(?:pinterest|product-visuals|websites))\.html(?:#[a-z-]+)?$/.test(page)) return;
+        const [file, fragment] = page.split("#");
+        const source = `https://github.com/hawkarc2003-cell/I/blob/${match[1]}/${file}`;
+        link.href = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(source)}${fragment ? `#${fragment}` : ""}`;
+      });
       // Retry interrupted images with a short backoff in this preview only.
       // Each retry points to the same file bytes.
       document.querySelectorAll("img[src]").forEach((image) => {
@@ -57,13 +75,19 @@
         if (image.complete && image.currentSrc && !image.naturalWidth) retryImage();
       });
       const setHint = (video, message) => {
-        if (!video.dataset.inViewer) return;
-        const hint = document.getElementById("viewer-hint");
-        if (hint) hint.textContent = message;
+        const hint = video.dataset.inViewer
+          ? document.getElementById("viewer-hint")
+          : video.closest(".sample-card")?.querySelector("[data-video-status]");
+        if (!hint) return;
+        hint.textContent = message;
+        if (!video.dataset.inViewer) hint.hidden = !message;
       };
-      const resumeIfOpen = (video) => {
-        if (video.dataset.inViewer) attemptPlayback(video);
+      const resumeIfRequested = (video) => {
+        if (video.dataset.inViewer || video.dataset.previewPlayRequested) attemptPlayback(video);
       };
+      const failureMessage = (video) => video.dataset.inViewer
+        ? "Video could not be loaded. Check your connection and reopen it to retry."
+        : "Video could not be loaded. Check your connection and reload, or open the original video.";
       document.querySelectorAll("video source[src]").forEach((source) => {
         const video = source.parentElement;
         const originalPath = source.getAttribute("src");
@@ -72,7 +96,16 @@
         video.dataset.previewStage = "cdn";
         source.src = video.dataset.previewCdn;
         video.dataset.previewSourceUpdated = "true";
+        if (video.closest(".sample-card")) {
+          // Only resume a service-page clip after the visitor has requested it.
+          video.addEventListener("play", () => { video.dataset.previewPlayRequested = "true"; });
+          video.addEventListener("pause", () => {
+            if (video.readyState >= 2) delete video.dataset.previewPlayRequested;
+          });
+          video.addEventListener("ended", () => { delete video.dataset.previewPlayRequested; });
+        }
         video.addEventListener("loadeddata", () => {
+          if (!video.dataset.inViewer) setHint(video, "");
           video.dispatchEvent(new Event("work-media-state"));
         });
         const handlePreviewError = async () => {
@@ -81,7 +114,7 @@
             setHint(video, "Loading the original video…");
             source.src = video.dataset.previewRaw;
             video.load();
-            resumeIfOpen(video);
+            resumeIfRequested(video);
           } else if (video.dataset.previewStage === "raw") {
             video.dataset.previewStage = "fetching";
             setHint(video, "Loading the original video…");
@@ -95,14 +128,14 @@
               video.dataset.previewStage = "blob";
               video.src = url;
               video.load();
-              resumeIfOpen(video);
+              resumeIfRequested(video);
             } catch (_) {
               video.dataset.previewStage = "failed";
-              setHint(video, "Video could not be loaded. Check your connection and reopen it to retry.");
+              setHint(video, failureMessage(video));
             }
           } else if (video.dataset.previewStage === "blob") {
             video.dataset.previewStage = "failed";
-            setHint(video, "Video could not be loaded. Check your connection and reopen it to retry.");
+            setHint(video, failureMessage(video));
           }
         };
         // Errors for child <source> elements do not bubble to <video>.
@@ -120,9 +153,23 @@
     }
   }
 
+  // Prices are filled in by the studio in one small configuration file, not by
+  // visitors. Empty fields deliberately retain the "Price on enquiry" text.
+  const configuredPrices = window.THEAERALLA_PRICES || {};
+  document.querySelectorAll("[data-package-price]").forEach((field) => {
+    const price = configuredPrices[field.dataset.service]?.[field.dataset.tier];
+    if (typeof price === "string" && price.trim()) field.textContent = price.trim();
+  });
+
+  // Restore a section when returning from a separate page in the read-only
+  // preview, which replaces its document asynchronously after the initial load.
+  if (onPreview && window.location.hash) {
+    const target = document.getElementById(window.location.hash.slice(1));
+    if (target) window.requestAnimationFrame(() => target.scrollIntoView({ behavior: "auto", block: "start" }));
+  }
+
   // Some HTML previewers add a raw-file <base>. Fragment links should still
   // navigate this document, not the source file at that base URL.
-  const onPreview = window.location.hostname === "html-preview.github.io";
   const navigateToSection = (event, link) => {
     const href = link.getAttribute("href") || "";
     const destination = new URL(href, document.baseURI);
