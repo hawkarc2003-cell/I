@@ -144,7 +144,8 @@ class ServicePageTests(unittest.TestCase):
                         self.assertTrue((ROOT / path).is_file(), f"{name}: missing {path}")
                 if name != "home":
                     samples = one(root.find_all(css_class="service-samples"))
-                    self.assertNotIn(BLOG, [link.attrs.get("href") for link in samples.find_all("a")])
+                    if name == "pinterest":
+                        self.assertNotIn(BLOG, [link.attrs.get("href") for link in samples.find_all("a")])
                     self.assertTrue(any(link.attrs.get("href") == "index.html#services" for link in root.find_all("a")))
 
     def test_packages_delivery_revisions_policies_and_enquiries(self):
@@ -185,34 +186,59 @@ class ServicePageTests(unittest.TestCase):
             scripts = [s.attrs.get("src") for s in root.find_all("script")]
             self.assertLess(scripts.index("service-prices.js"), scripts.index("script.js"))
 
-    def test_pinterest_originals_and_product_videos_are_not_relabelled(self):
-        pin = ROOT / "assets/pinterest/rings-collection.jpg"
-        self.assertEqual(hashlib.sha256(pin.read_bytes()).hexdigest(),
-                         "1c75fc2737dc1bf8f4e82afc833af8c6d6fe3077774d9638ff02bfce503529ed")
-        pinterest = self.pages["pinterest"]
-        samples = one(pinterest.find_all(css_class="service-samples"))
-        self.assertIn("assets/pinterest/rings-collection.jpg", [x.attrs.get("src") for x in samples.find_all("img")])
-        pin_video = one(samples.find_all("video"))
+    def test_pinterest_and_product_sample_sources(self):
+        # Original files copied byte-for-byte from the creator's previous repositories.
+        originals = {
+            "assets/pinterest/rings-collection.jpg": "1c75fc2737dc1bf8f4e82afc833af8c6d6fe3077774d9638ff02bfce503529ed",
+            "assets/product-visuals/summer-fridays.jpg": "ca907d9c1c76b04e2e889215d3f5beeac402d8122e26808e56c6c1c851e4e0c6",
+        }
+        for path, digest in originals.items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+
+        pinterest = one(self.pages["pinterest"].find_all(css_class="service-samples"))
+        pin_cards = pinterest.find_all("figure")
+        self.assertEqual(len(pin_cards), 2)
+        self.assertEqual(one(pin_cards[0].find_all("img")).attrs["src"], "assets/pinterest/rings-collection.jpg")
+        self.assertIn("https://www.pinterest.com/trendcart77/premium-jewelry-collection-designer-rings/",
+                      [a.attrs.get("href") for a in pin_cards[0].find_all("a")])
+        pin_video = one(pin_cards[1].find_all("video"))
         self.assertEqual(one(pin_video.find_all("source")).attrs["src"], "assets/media/peaceful-notes.mp4")
         self.assertEqual(pin_video.attrs["data-has-audio"], "false")
+        self.assertIn("https://www.pinterest.com/pin/939774647267567002/",
+                      [a.attrs.get("href") for a in pin_cards[1].find_all("a")])
+
         product = one(self.pages["productVisuals"].find_all(css_class="service-samples"))
+        cards = product.find_all("figure")
+        self.assertEqual(len(cards), 6)
+        self.assertEqual({img.attrs["src"] for img in product.find_all("img")}, {
+            "assets/media/file_00000000b4e4821185a0f62eccb2d9fc.jpg",
+            "assets/media/file_00000000311c8211bea4f023861b57ba.png",
+            "assets/product-visuals/summer-fridays.jpg",
+        })
         videos = product.find_all("video")
         self.assertEqual({one(v.find_all("source")).attrs["src"] for v in videos}, {
-            "assets/media/lv_7610453473481493813_20261114134247(3).mp4", "assets/media/lv-ugc(2).mp4"})
+            "assets/media/lv_7610453473481493813_20261114134247(3).mp4",
+            "assets/media/lv_7627484597755989269_20261113153930(5).mp4",
+            "assets/media/lv-ugc(2).mp4",
+        })
+        sneaker = one([card for card in cards if any(
+            source.attrs.get("src") == "assets/media/lv_7627484597755989269_20261113153930(5).mp4"
+            for source in card.find_all("source"))])
+        self.assertIn("https://www.instagram.com/p/DgAOBa2T61J/",
+                      [a.attrs.get("href") for a in sneaker.find_all("a")])
         for video in [pin_video, *videos]:
             self.assertIn("controls", video.attrs)
             self.assertIn("playsinline", video.attrs)
             self.assertNotIn("muted", video.attrs)
             self.assertNotIn("autoplay", video.attrs)
 
-    def test_website_examples_are_labeled_without_claiming_clients(self):
+    def test_website_examples_do_not_claim_clients_or_show_event_sites(self):
         section = one(self.pages["websites"].find_all(css_class="service-samples"))
         self.assertIn("Studio website demonstration", section.text())
-        self.assertIn("Published one-page event website", section.text())
         links = [a.attrs.get("href") for a in section.find_all("a")]
         self.assertIn("index.html", links)
-        self.assertIn("https://hawkarc2003-cell.github.io/Wedding-countdown-/", links)
-        self.assertNotIn(BLOG, links)
+        for url in links:
+            self.assertNotRegex(url, r"(?i)wedding|bride-to-be")
         self.assertNotIn("client", section.text().lower())
 
 

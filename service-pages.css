@@ -272,6 +272,12 @@
   color: var(--ice);
 }
 
+.sample-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.25rem;
+}
+
 .sample-card__original,
 .website-card__link {
   display: inline-flex;
