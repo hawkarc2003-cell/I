@@ -1,6 +1,27 @@
 (() => {
   "use strict";
 
+  // A click can start audio immediately. If a browser blocks playback after an
+  // asynchronous preview fallback, expose an explicit "Play with sound" action.
+  const playbackAttempts = new WeakMap();
+  const attemptPlayback = (video) => {
+    const attempt = (playbackAttempts.get(video) || 0) + 1;
+    playbackAttempts.set(video, attempt);
+    delete video.dataset.playBlocked;
+    video.dispatchEvent(new Event("work-media-state"));
+    const reportBlocked = (error) => {
+      if (!error || error.name !== "NotAllowedError" || !video.dataset.inViewer || playbackAttempts.get(video) !== attempt) return;
+      video.dataset.playBlocked = "true";
+      video.dispatchEvent(new Event("work-media-state"));
+    };
+    try {
+      const result = video.play();
+      if (result && typeof result.catch === "function") result.catch(reportBlocked);
+    } catch (error) {
+      reportBlocked(error);
+    }
+  };
+
   // The read-only Git-hosted preview needs a video-friendly MIME type. Prefer
   // jsDelivr there, but it can reject large repositories. In that case try the
   // unchanged GitHub original, and finally a correctly typed Blob of its bytes.
@@ -13,7 +34,7 @@
       const cdnRoot = `https://cdn.jsdelivr.net/gh/hawkarc2003-cell/I@${match[1]}/`;
       const rawRoot = `https://raw.githubusercontent.com/hawkarc2003-cell/I/${match[1]}/`;
       // Retry interrupted images with a short backoff in this preview only.
-      // The retry points to the same original bytes, not a converted image.
+      // Each retry points to the same file bytes.
       document.querySelectorAll("img[src]").forEach((image) => {
         const delays = [750, 1500];
         let attempts = 0;
@@ -41,10 +62,7 @@
         if (hint) hint.textContent = message;
       };
       const resumeIfOpen = (video) => {
-        if (!video.dataset.inViewer) return;
-        video.muted = true;
-        const playing = video.play();
-        if (playing && typeof playing.catch === "function") playing.catch(() => {});
+        if (video.dataset.inViewer) attemptPlayback(video);
       };
       document.querySelectorAll("video source[src]").forEach((source) => {
         const video = source.parentElement;
@@ -55,7 +73,7 @@
         source.src = video.dataset.previewCdn;
         video.dataset.previewSourceUpdated = "true";
         video.addEventListener("loadeddata", () => {
-          setHint(video, "Starts muted. Use the controls to adjust sound where available.");
+          video.dispatchEvent(new Event("work-media-state"));
         });
         const handlePreviewError = async () => {
           if (video.dataset.previewStage === "cdn") {
@@ -164,6 +182,7 @@
   // JavaScript or the native dialog is unavailable.
   const fan = document.querySelector(".work-fan");
   const fanCards = fan ? Array.from(fan.querySelectorAll("[data-fan-project]")) : [];
+  let selectFanProject = () => {};
   if (fan && fanCards.length) {
     const fanTrack = fan.querySelector(".work-fan__cards");
     const previous = fan.querySelector("[data-fan-previous]");
@@ -171,6 +190,11 @@
     const toggle = fan.querySelector("[data-fan-toggle]");
     const number = fan.querySelector("[data-fan-number]");
     const announcement = fan.querySelector("[data-fan-announcement]");
+    const detailTitle = fan.querySelector("[data-fan-title]");
+    const detailType = fan.querySelector("[data-fan-detail]");
+    const detailDescription = fan.querySelector("[data-fan-description]");
+    const detailOpen = fan.querySelector("[data-fan-open]");
+    const detailOpenLabel = fan.querySelector("[data-fan-open-label]");
     const smallFan = window.matchMedia("(max-width: 800px)");
     const fanDialog = document.getElementById("project-viewer");
     let current = Math.min(3, fanCards.length - 1);
@@ -181,6 +205,9 @@
     let timer = null;
     let touchStart = null;
     let ignoreTap = false;
+    let wheelDistance = 0;
+    let wheelReset = null;
+    let lastWheelMove = 0;
 
     const updateToggle = () => {
       toggle.textContent = playing ? "Pause motion" : "Play motion";
@@ -204,9 +231,20 @@
         fanCards[current].focus({ preventScroll: true });
       }
       number.textContent = String(current + 1).padStart(2, "0");
+      const card = fanCards[current];
+      const project = document.getElementById(`project-${card.dataset.fanProject}`);
+      if (project) {
+        const isVideo = Boolean(project.querySelector("video"));
+        const action = isVideo ? "Play video" : "View image";
+        detailTitle.textContent = project.dataset.title;
+        detailType.textContent = project.dataset.detail;
+        detailDescription.textContent = project.dataset.description;
+        detailOpen.setAttribute("href", card.getAttribute("href"));
+        detailOpen.setAttribute("aria-label", `${action}: ${project.dataset.title}`);
+        detailOpenLabel.textContent = action;
+      }
       if (announce) {
-        const target = document.getElementById(`project-${fanCards[current].dataset.fanProject}`);
-        announcement.textContent = `Work ${current + 1} of ${fanCards.length}: ${target ? target.dataset.title : "Selected project"}.`;
+        announcement.textContent = `Work ${current + 1} of ${fanCards.length}: ${project ? project.dataset.title : "Selected project"}.`;
       }
     };
     const canMove = () => playing && inView && !pointerOver &&
@@ -222,7 +260,17 @@
           renderFan();
         }
         schedule();
-      }, 5500);
+      }, 7500);
+    };
+    selectFanProject = (id) => {
+      const index = fanCards.findIndex((card) => card.dataset.fanProject === id);
+      if (index < 0) return;
+      playing = false;
+      explicitPlay = false;
+      current = index;
+      updateToggle();
+      renderFan();
+      schedule();
     };
     const moveFan = (direction) => {
       playing = false;
@@ -277,6 +325,18 @@
       window.setTimeout(() => { ignoreTap = false; }, 400);
       moveFan(dx < 0 ? 1 : -1);
     }, { passive: true });
+    fanTrack.addEventListener("touchcancel", () => { touchStart = null; }, { passive: true });
+    fanTrack.addEventListener("wheel", (event) => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      event.preventDefault();
+      wheelDistance += event.deltaX;
+      window.clearTimeout(wheelReset);
+      wheelReset = window.setTimeout(() => { wheelDistance = 0; }, 180);
+      if (Math.abs(wheelDistance) < 45 || Date.now() - lastWheelMove < 650) return;
+      moveFan(wheelDistance > 0 ? 1 : -1);
+      lastWheelMove = Date.now();
+      wheelDistance = 0;
+    }, { passive: false });
     const resizeFan = () => { renderFan(); schedule(); };
     if (typeof smallFan.addEventListener === "function") smallFan.addEventListener("change", resizeFan);
     else smallFan.addListener(resizeFan);
@@ -297,35 +357,9 @@
     schedule();
   }
 
-  // Load only previews near the viewport. Seeking a few selected thumbnails
-  // changes the preview frame, never the original file or playback speed.
-  const videoPreviews = Array.from(document.querySelectorAll(".project video"));
-  const preparePreview = (video) => {
-    const previewTime = Number(video.dataset.previewTime || 0);
-    if (previewTime > 0) {
-      video.addEventListener("loadedmetadata", () => {
-        if (!video.dataset.inViewer && video.duration > previewTime) video.currentTime = previewTime;
-      }, { once: true });
-    }
-    if (video.preload === "none" || video.dataset.previewSourceUpdated) {
-      delete video.dataset.previewSourceUpdated;
-      video.load();
-      video.preload = "metadata";
-    }
-  };
-  if ("IntersectionObserver" in window) {
-    const previewObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        preparePreview(entry.target);
-        observer.unobserve(entry.target);
-      });
-    }, { rootMargin: "500px 0px" });
-    videoPreviews.forEach((video) => previewObserver.observe(video));
-  } else {
-    videoPreviews.forEach(preparePreview);
-  }
-
+  // Originals stay out of sight until selected, so they do not load or repeat
+  // below the fan. The direct card links remain usable without a dialog.
+  const projectVideos = Array.from(document.querySelectorAll(".project video"));
   const dialog = document.getElementById("project-viewer");
   const projects = Array.from(document.querySelectorAll("[data-project]"));
   if (!dialog || typeof dialog.showModal !== "function" || projects.length === 0) return;
@@ -339,6 +373,8 @@
   const closeButton = dialog.querySelector(".viewer__close");
   const previousButton = dialog.querySelector(".viewer__previous");
   const nextButton = dialog.querySelector(".viewer__next");
+  const soundButton = dialog.querySelector("[data-viewer-sound]");
+  const soundLabel = dialog.querySelector("[data-viewer-sound-label]");
   const reduced = () => reducedMotion.matches;
   let currentIndex = -1;
   let activeMedia = null;
@@ -346,17 +382,78 @@
   let closeTimer = null;
   let closing = false;
   let animationFrame = null;
+  let soundEnabled = true;
+
+  const updateSoundUI = () => {
+    const video = activeMedia && activeMedia.node instanceof HTMLVideoElement ? activeMedia.node : null;
+    soundButton.hidden = !video || video.dataset.hasAudio === "false";
+    hint.hidden = !video;
+    if (!video) return;
+    const failed = video.dataset.previewStage === "failed";
+    const loading = video.dataset.previewStage === "fetching" || (video.dataset.previewStage === "raw" && video.readyState < 2);
+    if (video.dataset.hasAudio === "false") {
+      hint.textContent = failed ? "Video could not be loaded. Check your connection and reopen it to retry."
+        : (loading ? "Loading the original video…" : "This original video has no audio track.");
+      return;
+    }
+    const blocked = video.dataset.playBlocked === "true";
+    const enabled = !video.muted && video.volume > 0;
+    soundLabel.textContent = blocked ? "Play with sound" : (enabled ? "Sound on" : "Sound off");
+    soundButton.setAttribute("aria-label", blocked ? "Play with sound" : (enabled ? "Sound on, tap to mute" : "Sound off, tap to turn on"));
+    if (blocked) soundButton.removeAttribute("aria-pressed");
+    else soundButton.setAttribute("aria-pressed", String(enabled));
+    if (failed) {
+      hint.textContent = "Video could not be loaded. Check your connection and reopen it to retry.";
+    } else if (loading) {
+      hint.textContent = "Loading the original video…";
+    } else if (blocked) {
+      hint.textContent = "Tap Play with sound to start the video.";
+    } else {
+      hint.textContent = enabled ? "Sound is on. Adjust volume on your device or video." : "Sound is off. Use the sound button to turn it on.";
+    }
+  };
+
+  projectVideos.forEach((video) => {
+    video.addEventListener("volumechange", () => {
+      if (activeMedia && activeMedia.node === video && video.dataset.inViewer && video.dataset.hasAudio === "true") {
+        soundEnabled = !video.muted && video.volume > 0;
+      }
+      if (activeMedia && activeMedia.node === video) updateSoundUI();
+    });
+    video.addEventListener("work-media-state", () => {
+      if (activeMedia && activeMedia.node === video) updateSoundUI();
+    });
+    video.addEventListener("playing", () => {
+      delete video.dataset.playBlocked;
+      if (activeMedia && activeMedia.node === video) updateSoundUI();
+    });
+  });
+
+  soundButton.addEventListener("click", () => {
+    const video = activeMedia && activeMedia.node;
+    if (!(video instanceof HTMLVideoElement) || video.dataset.hasAudio === "false") return;
+    if (video.dataset.playBlocked === "true") {
+      soundEnabled = true;
+      video.muted = false;
+      if (video.volume === 0) video.volume = 1;
+      attemptPlayback(video);
+    } else {
+      soundEnabled = video.muted || video.volume === 0;
+      video.muted = !soundEnabled;
+      if (soundEnabled && video.volume === 0) video.volume = 1;
+    }
+    updateSoundUI();
+  });
 
   const returnMedia = () => {
     if (!activeMedia) return;
-    const { node, home, project } = activeMedia;
+    const { node, home } = activeMedia;
     if (node instanceof HTMLVideoElement) {
       node.pause();
       node.controls = false;
       delete node.dataset.inViewer;
     }
-    home.insertBefore(node, home.querySelector(".project__open"));
-    project.classList.remove("project--in-viewer");
+    home.appendChild(node);
     activeMedia = null;
   };
 
@@ -368,21 +465,22 @@
     const node = home && home.querySelector("img, video");
     if (!home || !node) return;
     currentIndex = index;
-    activeMedia = { node, home, project };
-    project.classList.add("project--in-viewer");
+    selectFanProject(project.dataset.index);
+    activeMedia = { node, home };
     if (node instanceof HTMLVideoElement) {
       node.pause();
       node.controls = true;
       node.dataset.inViewer = "true";
+      if (node.dataset.hasAudio === "true") {
+        node.muted = !soundEnabled;
+        if (soundEnabled && node.volume === 0) node.volume = 1;
+      }
     }
     visual.appendChild(node);
     title.textContent = project.dataset.title;
     detail.textContent = project.dataset.detail;
     const isVideo = node instanceof HTMLVideoElement;
-    hint.hidden = !isVideo;
-    hint.textContent = isVideo
-      ? (node.dataset.previewStage === "fetching" ? "Loading the original video…" : "Starts muted. Use the controls to adjust sound where available.")
-      : "";
+    updateSoundUI();
     dialog.setAttribute("aria-describedby", isVideo ? "viewer-detail viewer-hint" : "viewer-detail");
     indexLabel.textContent = `SELECTED WORK / ${project.dataset.index}`;
     counter.textContent = `${String(index + 1).padStart(2, "0")} / ${String(projects.length).padStart(2, "0")}`;
@@ -417,11 +515,7 @@
   };
 
   const playActiveVideo = () => {
-    if (!activeMedia || !(activeMedia.node instanceof HTMLVideoElement)) return;
-    // Playback starts from the beginning; visitors can unmute or use the native controls.
-    activeMedia.node.muted = true;
-    const playing = activeMedia.node.play();
-    if (playing && typeof playing.catch === "function") playing.catch(() => {});
+    if (activeMedia && activeMedia.node instanceof HTMLVideoElement) attemptPlayback(activeMedia.node);
   };
 
   const openProject = (index, button) => {
@@ -440,9 +534,13 @@
     } catch (_) {
       returnMedia();
       currentIndex = -1;
-      videoPreviews.forEach((video) => { video.controls = true; });
+      projectVideos.forEach((video) => { video.controls = true; });
       document.documentElement.classList.remove("js-viewer-enabled");
+      fanCards.forEach((card) => card.removeAttribute("aria-haspopup"));
+      const fallback = fan && fan.querySelector("[data-fan-open]");
+      if (fallback) fallback.removeAttribute("aria-haspopup");
       button.blur();
+      if (button instanceof HTMLAnchorElement) window.location.assign(button.href);
     }
   };
 
@@ -463,19 +561,28 @@
     else closeTimer = window.setTimeout(finishClosing, 220);
   };
 
-  projects.forEach((project, index) => {
-    const button = project.querySelector(".project__open");
-    if (button) button.addEventListener("click", () => openProject(index, button));
-  });
   fanCards.forEach((card) => {
     const index = projects.findIndex((project) => project.dataset.index === card.dataset.fanProject);
     if (index < 0) return;
     card.setAttribute("aria-haspopup", "dialog");
     card.addEventListener("click", (event) => {
+      if (!document.documentElement.classList.contains("js-viewer-enabled")) return;
       event.preventDefault();
       openProject(index, card);
     });
   });
+  const detailOpen = fan && fan.querySelector("[data-fan-open]");
+  if (detailOpen) {
+    detailOpen.setAttribute("aria-haspopup", "dialog");
+    detailOpen.addEventListener("click", (event) => {
+      if (!document.documentElement.classList.contains("js-viewer-enabled")) return;
+      const card = fan.querySelector('[data-fan-position="0"]');
+      const index = card ? projects.findIndex((project) => project.dataset.index === card.dataset.fanProject) : -1;
+      if (index < 0) return;
+      event.preventDefault();
+      openProject(index, detailOpen);
+    });
+  }
   closeButton.addEventListener("click", closeProject);
   previousButton.addEventListener("click", () => {
     displayProject(currentIndex - 1);
@@ -500,10 +607,12 @@
     document.body.classList.remove("viewer-open");
     returnMedia();
     currentIndex = -1;
-    if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+    const returnFocus = opener && opener.getAttribute("aria-hidden") === "true"
+      ? fan.querySelector('[data-fan-position="0"]') : opener;
+    if (returnFocus && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
     opener = null;
   });
 
-  videoPreviews.forEach((video) => { video.controls = false; });
+  projectVideos.forEach((video) => { video.controls = false; });
   document.documentElement.classList.add("js-viewer-enabled");
 })();
