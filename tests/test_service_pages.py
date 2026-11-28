@@ -8,7 +8,7 @@ import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-BLOG = "https://hawkarc2003-cell.github.io/Theaerallapfl/"
+BLOG = "http://hawkarc2003-cell.github.io/Theaeralla.blog"
 EMAIL = "hawkarc2003@gmail.com"
 
 
@@ -130,11 +130,13 @@ class ServicePageTests(unittest.TestCase):
     def test_blog_is_navigation_only_and_all_local_resources_exist(self):
         for name, root in [("home", self.home), *self.pages.items()]:
             with self.subTest(page=name):
-                blogs = [a for a in root.find_all("a") if a.attrs.get("href") == BLOG]
-                self.assertEqual(len(blogs), 2)  # desktop and mobile navigation
-                for link in blogs:
-                    self.assertEqual(link.attrs.get("target"), "_blank")
-                    self.assertIn("noopener", link.attrs.get("rel", ""))
+                for nav_class in ("desktop-nav", "mobile-menu"):
+                    nav = one(root.find_all(css_class=nav_class))
+                    blog = one([a for a in nav.find_all("a")
+                                if a.attrs.get("aria-label", "").startswith("Blog")])
+                    self.assertEqual(blog.attrs.get("href"), BLOG)
+                    self.assertEqual(blog.attrs.get("target"), "_blank")
+                    self.assertIn("noopener", blog.attrs.get("rel", ""))
                 for element in root.descendants():
                     for attr in ("href", "src", "poster"):
                         value = element.attrs.get(attr)
