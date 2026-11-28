@@ -144,8 +144,7 @@ class ServicePageTests(unittest.TestCase):
                         self.assertTrue((ROOT / path).is_file(), f"{name}: missing {path}")
                 if name != "home":
                     samples = one(root.find_all(css_class="service-samples"))
-                    if name == "pinterest":
-                        self.assertNotIn(BLOG, [link.attrs.get("href") for link in samples.find_all("a")])
+                    self.assertNotIn(BLOG, [link.attrs.get("href") for link in samples.find_all("a")])
                     self.assertTrue(any(link.attrs.get("href") == "index.html#services" for link in root.find_all("a")))
 
     def test_packages_delivery_revisions_policies_and_enquiries(self):
@@ -232,14 +231,34 @@ class ServicePageTests(unittest.TestCase):
             self.assertNotIn("muted", video.attrs)
             self.assertNotIn("autoplay", video.attrs)
 
-    def test_website_examples_do_not_claim_clients_or_show_event_sites(self):
+    def test_website_examples_use_the_two_confirmed_sites(self):
         section = one(self.pages["websites"].find_all(css_class="service-samples"))
-        self.assertIn("Studio website demonstration", section.text())
-        links = [a.attrs.get("href") for a in section.find_all("a")]
-        self.assertIn("index.html", links)
-        for url in links:
-            self.assertNotRegex(url, r"(?i)wedding|bride-to-be")
+        cards = section.find_all(css_class="website-card")
+        self.assertEqual(len(cards), 2)
+        expected = [
+            ("https://hawkarc2003-cell.github.io/Theaeralla/", "assets/site-previews/theaeralla-portfolio.png"),
+            ("https://hawkarc2003-cell.github.io/Theaerallaptfl/", "assets/site-previews/theaerallaptfl-portfolio.png"),
+        ]
+        for card, (url, preview) in zip(cards, expected):
+            image = one(card.find_all("img"))
+            self.assertEqual(image.attrs["src"], preview)
+            self.assertTrue(image.attrs.get("alt"))
+            self.assertEqual((image.attrs["width"], image.attrs["height"]), ("1440", "900"))
+            preview_link = one(card.find_all(css_class="website-card__preview"))
+            self.assertEqual(one(preview_link.find_all("img")), image)
+            self.assertIn("website preview", preview_link.attrs.get("aria-label", "").lower())
+            view_link = one(card.find_all(css_class="website-card__link"))
+            heading = normalized(one(card.find_all("h3")).text())
+            self.assertIn(heading.lower(), view_link.attrs.get("aria-label", "").lower())
+            self.assertEqual(len(card.find_all("a")), 2)
+            for link in (preview_link, view_link):
+                self.assertEqual(link.attrs["href"], url)
+                self.assertEqual(link.attrs.get("target"), "_blank")
+                self.assertIn("noopener", link.attrs.get("rel", "").split())
+                self.assertIn("noreferrer", link.attrs.get("rel", "").split())
+                self.assertIn("opens in a new tab", (link.attrs.get("aria-label", "") + link.text()).lower())
         self.assertNotIn("client", section.text().lower())
+        self.assertNotIn("wedding", section.text().lower())
 
 
 if __name__ == "__main__":
